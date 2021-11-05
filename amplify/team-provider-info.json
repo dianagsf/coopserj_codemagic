@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-coopserjapp-dev-121733-authRole",
+      "UnauthRoleArn": "arn:aws:iam::326640791876:role/amplify-coopserjapp-dev-121733-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::326640791876:role/amplify-coopserjapp-dev-121733-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-coopserjapp-dev-121733-deployment",
+      "UnauthRoleName": "amplify-coopserjapp-dev-121733-unauthRole",
+      "StackName": "amplify-coopserjapp-dev-121733",
+      "StackId": "arn:aws:cloudformation:us-east-1:326640791876:stack/amplify-coopserjapp-dev-121733/2163dd60-dda4-11eb-aaeb-0e892a71c9a9",
+      "AmplifyAppId": "d36vkp9amvb1pk"
+    },
+    "categories": {
+      "auth": {
+        "coopserjapp6fa0dcaf": {}
+      }
+    }
+  }
+}

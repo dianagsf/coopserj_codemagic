@@ -1,0 +1,16 @@
+{
+  "auth": {
+    "coopserjapp6fa0dcaf": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "storage": {
+    "coopserjapp": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}
