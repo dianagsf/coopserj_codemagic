@@ -40,6 +40,6 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Permissão de acesso à galeria.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Esse app requer acesso à camera.</string>
+	<string>Este app requer acesso à camera.</string>
 </dict>
 </plist>
