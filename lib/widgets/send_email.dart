@@ -4,6 +4,7 @@ import 'package:coopserj_app/utils/email.dart';
 import 'package:flutter/material.dart';
 import 'package:date_format/date_format.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class SendEmail extends StatefulWidget {
   final String cpf;
@@ -23,6 +24,9 @@ class _SendEmailState extends State<SendEmail> {
   AssociadoRepository associadoRepository = AssociadoRepository();
   Future<List<AssociadoModel>> assocInfo;
 
+  EnviarEmailWebRepository enviarEmailWebRepository =
+      EnviarEmailWebRepository();
+
   var email = Email('appbasicline@gmail.com', 'Rbline87105');
 
   void _sendEmail({String nome, int matricula}) async {
@@ -38,6 +42,22 @@ class _SendEmailState extends State<SendEmail> {
         'APP Coopserj: SOLICITAÇÃO DE NOVA SENHA.');
 
     print("resultado = $result");
+  }
+
+  void enviarEmailSenhaWeb({
+    String matricula,
+    String nome,
+  }) {
+    print("E-MAIL SENHA WEB !!!!!");
+    var data = formatDate(
+        DateTime.now(), [dd, '/', mm, '/', yyyy, ' às ', HH, ':', nn]);
+
+    enviarEmailWebRepository.enviarEmailSenhaWeb({
+      "matricula": matricula,
+      "cpf": widget.cpf,
+      "nome": nome.toUpperCase(),
+      "data": data,
+    });
   }
 
   @override
@@ -74,10 +94,15 @@ class _SendEmailState extends State<SendEmail> {
 
                   return _showAlertDialog(context);
                 } else {
-                  _sendEmail(
-                    nome: snapshot.data[0].nome,
-                    matricula: snapshot.data[0].matricula,
-                  );
+                  kIsWeb // verifica se tá rodando na WEB
+                      ? enviarEmailSenhaWeb(
+                          matricula: snapshot.data[0].matricula.toString(),
+                          nome: snapshot.data[0].nome,
+                        )
+                      : _sendEmail(
+                          nome: snapshot.data[0].nome,
+                          matricula: snapshot.data[0].matricula,
+                        );
                   return AlertDialog(
                     title: Text(
                       "Sua solicitação de alteração de senha foi enviada.",

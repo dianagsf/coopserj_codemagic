@@ -5,6 +5,7 @@ import 'package:coopserj_app/amplifyconfiguration.dart';
 import 'package:coopserj_app/controllers/assinou_lgdp_controller.dart';
 import 'package:coopserj_app/controllers/controllers.dart';
 import 'package:coopserj_app/screens/auth_page.dart';
+import 'package:coopserj_app/screens/primeiro_acesso/primeiro_acesso_page.dart';
 import 'package:coopserj_app/utils/responsive.dart';
 import 'package:coopserj_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -246,7 +247,7 @@ Widget _buildLoginMobile(
                 height: alturaTela * 0.16, //130,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('images/logo.png'),
+                    image: AssetImage('images/login.png'),
                     fit: BoxFit.scaleDown,
                   ),
                 ),
@@ -267,179 +268,8 @@ Widget _buildLoginMobile(
                 ),
                 child: Form(
                   key: formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        validator: _validateCPF,
-                        keyboardType: TextInputType.number,
-                        controller: cpfController,
-                        decoration: InputDecoration(
-                          hintText: "CPF",
-                          prefixIcon: Icon(Icons.account_circle),
-                        ),
-                      ),
-                      const SizedBox(height: 10.0),
-                      TextFormField(
-                        obscureText: obscureText,
-                        validator: _validateSenha,
-                        controller: senhaController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: "Senha",
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: obscureText
-                                ? Icon(Icons.visibility_off)
-                                : Icon(Icons.visibility),
-                            onPressed: showSenha,
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: TextButton(
-                          onPressed: () {
-                            Get.dialog(
-                              buildDialog(
-                                  cpfSenhaController, dataNascController),
-                            );
-                          },
-                          child: Text(
-                            "Esqueceu sua senha?",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16.0,
-                              fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: alturaTela * 0.05,
-                      ),
-                      SizedBox(
-                        height: alturaTela * 0.062,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState.validate()) {
-                              formKey.currentState.save();
-
-                              Get.to(
-                                AuthPage(
-                                  cpf: cpfController.text,
-                                  senha: senhaController.text,
-                                  assinaturaLGDP:
-                                      assinouLGDPController.assinatura,
-                                  assinaturaSCR:
-                                      assinouSCRController.assinatura,
-                                ),
-                              );
-
-                              /*Get.to(
-                                    AuthPage(
-                                      cpf: cpfController.text,
-                                      senha: senhaController.text,
-                                    ),
-                                  );*/
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50.0),
-                              side: BorderSide(
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Login",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: alturaTela * 0.03, //20.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          //Get.to(Cadastro());
-                          launchURL();
-                        },
-                        child: Text(
-                          "Ainda não é um associado? Cadastre-se!",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: alturaTela * 0.02, //16.0,
-                            fontStyle: FontStyle.normal,
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _buildLoginWeb(
-  double alturaTela,
-  GlobalKey<FormState> formKey,
-  MaskedTextController cpfController,
-  MaskedTextController senhaController,
-  MaskedTextController cpfSenhaController,
-  MaskedTextController dataNascController,
-  bool obscureText,
-  AssinouLGDPController assinouLGDPController,
-  AssinouSCRController assinouSCRController,
-  Function launchURL,
-  Function showSenha,
-) {
-  return Scaffold(
-    body: Container(
-      width: double.infinity,
-      height: double.infinity,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Color(0xFF005AE6),
-                image: DecorationImage(
-                  image: AssetImage("images/loginWeb.jpg"),
-                  fit: BoxFit.scaleDown,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 40),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    child: Image.asset("images/logo.png"),
-                  ),
-                  const SizedBox(height: 20),
-                  Form(
-                    key: formKey,
+                  child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TextFormField(
                           validator: _validateCPF,
@@ -488,11 +318,10 @@ Widget _buildLoginWeb(
                           ),
                         ),
                         SizedBox(
-                          height: alturaTela * 0.15,
+                          height: alturaTela * 0.05,
                         ),
                         SizedBox(
-                          width: alturaTela * 0.40,
-                          height: alturaTela * 0.062, //50.0,
+                          height: alturaTela * 0.062,
                           child: ElevatedButton(
                             onPressed: () {
                               if (formKey.currentState.validate()) {
@@ -554,7 +383,264 @@ Widget _buildLoginWeb(
                             ),
                           ),
                         ),
+                        SizedBox(
+                          height: alturaTela * 0.09,
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.to(PrimeiroAcessoPage());
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                'Primeiro acesso?',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: alturaTela * 0.02,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Clique aqui!',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: alturaTela * 0.02,
+                                ),
+                              ),
+                              Spacer(),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.black87,
+                              ),
+                            ],
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            primary: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildLoginWeb(
+  double alturaTela,
+  GlobalKey<FormState> formKey,
+  MaskedTextController cpfController,
+  MaskedTextController senhaController,
+  MaskedTextController cpfSenhaController,
+  MaskedTextController dataNascController,
+  bool obscureText,
+  AssinouLGDPController assinouLGDPController,
+  AssinouSCRController assinouSCRController,
+  Function launchURL,
+  Function showSenha,
+) {
+  return Scaffold(
+    body: Container(
+      width: double.infinity,
+      height: double.infinity,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFF005AE6),
+                image: DecorationImage(
+                  image: AssetImage("images/loginWeb.jpg"),
+                  fit: BoxFit.scaleDown,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 40),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    child: Image.asset("images/login.png"),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextFormField(
+                            validator: _validateCPF,
+                            keyboardType: TextInputType.number,
+                            controller: cpfController,
+                            decoration: InputDecoration(
+                              hintText: "CPF",
+                              prefixIcon: Icon(Icons.account_circle),
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          TextFormField(
+                            obscureText: obscureText,
+                            validator: _validateSenha,
+                            controller: senhaController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: "Senha",
+                              prefixIcon: Icon(Icons.lock),
+                              suffixIcon: IconButton(
+                                icon: obscureText
+                                    ? Icon(Icons.visibility_off)
+                                    : Icon(Icons.visibility),
+                                onPressed: showSenha,
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: TextButton(
+                              onPressed: () {
+                                Get.dialog(
+                                  buildDialog(
+                                      cpfSenhaController, dataNascController),
+                                );
+                              },
+                              child: Text(
+                                "Esqueceu sua senha?",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16.0,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: alturaTela * 0.15,
+                          ),
+                          SizedBox(
+                            width: alturaTela * 0.40,
+                            height: alturaTela * 0.062, //50.0,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (formKey.currentState.validate()) {
+                                  formKey.currentState.save();
+
+                                  Get.to(
+                                    AuthPage(
+                                      cpf: cpfController.text,
+                                      senha: senhaController.text,
+                                      assinaturaLGDP:
+                                          assinouLGDPController.assinatura,
+                                      assinaturaSCR:
+                                          assinouSCRController.assinatura,
+                                    ),
+                                  );
+
+                                  /*Get.to(
+                                        AuthPage(
+                                          cpf: cpfController.text,
+                                          senha: senhaController.text,
+                                        ),
+                                      );*/
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50.0),
+                                  side: BorderSide(
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: alturaTela * 0.03, //20.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              //Get.to(Cadastro());
+                              launchURL();
+                            },
+                            child: Text(
+                              "Ainda não é um associado? Cadastre-se!",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: alturaTela * 0.02, //16.0,
+                                fontStyle: FontStyle.normal,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.to(PrimeiroAcessoPage());
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          'Primeiro acesso?',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: alturaTela * 0.02,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Clique aqui!',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontSize: alturaTela * 0.02,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Spacer(),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.black87,
+                        ),
+                      ],
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
+                      primary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   ),
                 ],

@@ -3,6 +3,8 @@ export 'convenios_details.dart';
 export 'info_page.dart';
 export 'desligamento_page.dart';
 export 'login_page.dart';
+export 'primeiro_acesso/primeiro_acesso_page.dart';
+export 'primeiro_acesso/enviar_email.dart';
 export 'auth_page.dart';
 export 'consulta_convenios_page.dart';
 export 'quitacao_page.dart';
