@@ -7,7 +7,8 @@ class Email {
 
   Email(String username, String password) {
     _username = username;
-    smtpServer = gmail(_username, password);
+    smtpServer =
+        SmtpServer('email-ssl.com.br', username: username, password: password);
   }
 
   Future<bool> sendMessage(

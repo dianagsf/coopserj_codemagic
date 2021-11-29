@@ -13,6 +13,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class ConsultaSolicPage extends StatefulWidget {
   final int matricula;
@@ -520,23 +521,25 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
                           _anexoRG,
                           _contracheque,
                           _comprovanteResid,
-                          Responsive.isDesktop(context) ? getRGWeb : getRG,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
+                              ? getRGWeb
+                              : getRG,
+                          Responsive.isDesktop(context) || kIsWeb
                               ? getContrachequeWeb
                               : getContracheque,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
                               ? getComprovanteResidWeb
                               : getComprovanteResid,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
                               ? handleDeleteRGWeb
                               : handleDeleteRG,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
                               ? handleDeleteContrachequeWeb
                               : handleDeleteContracheque,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
                               ? handleDeleteComprovanteResidWeb
                               : handleDeleteComprovanteResid,
-                          Responsive.isDesktop(context)
+                          Responsive.isDesktop(context) || kIsWeb
                               ? uploadDocumentosWeb
                               : uploadDocumentos,
                           _anexoRGWeb,
@@ -1044,7 +1047,7 @@ Widget _showImage(
               Container(
                 margin: const EdgeInsets.only(bottom: 5),
                 constraints: BoxConstraints(maxHeight: 60.0, maxWidth: 50.0),
-                child: Responsive.isDesktop(context)
+                child: Responsive.isDesktop(context) || kIsWeb
                     ? SizedBox.shrink()
                     : Image.file(
                         image,
@@ -1053,7 +1056,7 @@ Widget _showImage(
               ),
               const SizedBox(width: 4.0),
               Expanded(
-                child: Responsive.isDesktop(context)
+                child: Responsive.isDesktop(context) || kIsWeb
                     ? Text("$label.$extensao")
                     : Text("$label.jpg"),
               ),

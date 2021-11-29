@@ -492,8 +492,8 @@ class _HomePageState extends State<HomePage> {
       ),
       desktop: Scaffold(
         body: Container(
-            width: double.infinity,
-            height: double.infinity,
+          width: double.infinity,
+          height: double.infinity,
           child: Row(
             children: [
               Expanded(

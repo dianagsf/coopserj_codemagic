@@ -27,7 +27,7 @@ class _SendEmailState extends State<SendEmail> {
   EnviarEmailWebRepository enviarEmailWebRepository =
       EnviarEmailWebRepository();
 
-  var email = Email('appbasicline@gmail.com', 'Rbline87105');
+  var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
 
   void _sendEmail({String nome, int matricula}) async {
     var data = formatDate(
@@ -35,6 +35,7 @@ class _SendEmailState extends State<SendEmail> {
 
     //TROCAR E-MAIL!!!
     //rogerio.barradas@basicline.com.br
+    //atendimento@coopserj.coop.br
 
     bool result = await email.sendMessage(
         ' NOME DO CLIENTE: COOPSERJ\n MATRÍCULA: $matricula \n CPF = ${widget.cpf} \n NOME: $nome \n DATA DA SOLICITAÇÃO: $data',

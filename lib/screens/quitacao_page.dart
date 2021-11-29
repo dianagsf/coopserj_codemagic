@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class QuitacaoPage extends StatefulWidget {
   final int matricula;
@@ -175,7 +176,7 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
       );
     }
 
-    if (Responsive.isDesktop(context)) {
+    if (Responsive.isDesktop(context) || kIsWeb) {
       if (_imageWeb == null) {
         Get.dialog(
           AlertDialog(
@@ -247,7 +248,7 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                       });
                     }
 
-                    Responsive.isDesktop(context)
+                    Responsive.isDesktop(context) || kIsWeb
                         ? _uploadComprovanteWeb()
                         : _uploadComprovante();
 
@@ -408,15 +409,16 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                                     margin: const EdgeInsets.only(bottom: 5),
                                     constraints: BoxConstraints(
                                         maxHeight: 60.0, maxWidth: 50.0),
-                                    child: Responsive.isDesktop(context)
-                                        ? SizedBox.shrink()
-                                        : Image.file(
-                                            _image,
-                                            fit: BoxFit.cover,
-                                          ),
+                                    child:
+                                        Responsive.isDesktop(context) || kIsWeb
+                                            ? SizedBox.shrink()
+                                            : Image.file(
+                                                _image,
+                                                fit: BoxFit.cover,
+                                              ),
                                   ),
                                   const SizedBox(width: 4.0),
-                                  Responsive.isDesktop(context)
+                                  Responsive.isDesktop(context) || kIsWeb
                                       ? Expanded(
                                           child: Text(pickedFile != null
                                               ? '${pickedFile.files.first.name}'
@@ -429,9 +431,10 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                                       Icons.delete_forever_outlined,
                                       color: Colors.red,
                                     ),
-                                    onPressed: Responsive.isDesktop(context)
-                                        ? handleDeleteImageWeb
-                                        : handleDeleteImage,
+                                    onPressed:
+                                        Responsive.isDesktop(context) || kIsWeb
+                                            ? handleDeleteImageWeb
+                                            : handleDeleteImage,
                                   ),
                                 ],
                               ),
@@ -720,7 +723,7 @@ Widget buildAnexoButton(
   double alturaTela,
 ) {
   return ElevatedButton.icon(
-    onPressed: Responsive.isDesktop(context) ? getImageWeb : getImage,
+    onPressed: Responsive.isDesktop(context) || kIsWeb ? getImageWeb : getImage,
     style: ElevatedButton.styleFrom(
       primary: Colors.blue[600],
       shape: RoundedRectangleBorder(

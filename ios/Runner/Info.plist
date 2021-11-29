@@ -43,5 +43,10 @@
 	<string>Permissão de acesso à galeria.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Este app requer acesso à camera.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+  		<string>https</string>
+  		<string>http</string>
+	</array>
 </dict>
 </plist>
