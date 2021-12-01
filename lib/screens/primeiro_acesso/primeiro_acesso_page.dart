@@ -31,7 +31,7 @@ class _PrimeiroAcessoPageState extends State<PrimeiroAcessoPage> {
   EnviarEmailWebRepository enviarEmailWebRepository =
       EnviarEmailWebRepository();
 
-  var email = Email('appbasicline@gmail.com', 'Rbline87105');
+  var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
 
   void _sendEmail({
     String nome,
