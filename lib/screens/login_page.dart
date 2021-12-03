@@ -24,6 +24,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       Get.put(AssinouLGDPController());
   AssinouSCRController assinouSCRController = Get.put(AssinouSCRController());
 
+  //GET CREDENCIAIS E-MAIL APP
+  EmailAppController emailAppController = Get.put(EmailAppController());
+
   bool _obscureText = true;
 
   MaskedTextController cpfController =
@@ -55,6 +58,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     super.initState();
     _configureAmplify();
 
+    //get e-mail e senha app
+    emailAppController.getDadosEmailApp();
+
     //get matriculas que já assinaram o termo
     assinouLGDPController.getAssinatura();
     assinouSCRController.getAssinatura();
@@ -74,6 +80,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
     double larguraTela = MediaQuery.of(context).size.width;
+
+    print(
+        "ALTURA TELA = $alturaTela // MEDIA = ${MediaQuery.of(context).size.height}");
 
     _launchURL() async {
       const url = 'https://www.coopserj.coop.br/cadastre-se';
@@ -105,6 +114,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         assinouSCRController,
         _launchURL,
         _showSenha,
+        emailAppController,
       ),
       tablet: _buildLoginMobile(
         context,
@@ -120,6 +130,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         assinouSCRController,
         _launchURL,
         _showSenha,
+        emailAppController,
       ),
       desktop: _buildLoginWeb(
         alturaTela,
@@ -133,6 +144,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         assinouSCRController,
         _launchURL,
         _showSenha,
+        emailAppController,
       ),
     );
   }
@@ -159,36 +171,41 @@ String _validateSenha(String value) {
   return null;
 }
 
-Widget buildDialog(MaskedTextController cpfSenhaController,
-    MaskedTextController dataNascController) {
+Widget buildDialog(
+  MaskedTextController cpfSenhaController,
+  MaskedTextController dataNascController,
+  EmailAppController emailAppController,
+) {
   return AlertDialog(
-    title: Text("Informe seus dados:"),
-    content: Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      height: 200,
-      child: Form(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            TextFormField(
-              controller: cpfSenhaController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "CPF:",
-                prefixIcon: Icon(Icons.security_outlined),
-                border: OutlineInputBorder(),
+    title: Text("Informe o CPF e a Data de Nascimento:"),
+    content: SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        height: 200,
+        child: Form(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextFormField(
+                controller: cpfSenhaController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "CPF:",
+                  prefixIcon: Icon(Icons.security_outlined),
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-            TextFormField(
-              controller: dataNascController,
-              keyboardType: TextInputType.datetime,
-              decoration: InputDecoration(
-                labelText: "Data de Nascimento:",
-                prefixIcon: Icon(Icons.date_range),
-                border: OutlineInputBorder(),
+              TextFormField(
+                controller: dataNascController,
+                keyboardType: TextInputType.datetime,
+                decoration: InputDecoration(
+                  labelText: "Data de Nascimento:",
+                  prefixIcon: Icon(Icons.date_range),
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),
@@ -200,6 +217,8 @@ Widget buildDialog(MaskedTextController cpfSenhaController,
             SendEmail(
               cpf: cpfSenhaController.text,
               dataNasc: dataNascController.text,
+              emailApp: emailAppController.emailApp[0].email,
+              senhaEmailApp: emailAppController.emailApp[0].senha,
             ),
           );
         },
@@ -223,6 +242,7 @@ Widget _buildLoginMobile(
   AssinouSCRController assinouSCRController,
   Function launchURL,
   Function showSenha,
+  EmailAppController emailAppController,
 ) {
   return Scaffold(
     body: SingleChildScrollView(
@@ -303,7 +323,10 @@ Widget _buildLoginMobile(
                             onPressed: () {
                               Get.dialog(
                                 buildDialog(
-                                    cpfSenhaController, dataNascController),
+                                  cpfSenhaController,
+                                  dataNascController,
+                                  emailAppController,
+                                ),
                               );
                             },
                             child: Text(
@@ -383,12 +406,20 @@ Widget _buildLoginMobile(
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: alturaTela * 0.09,
-                        ),
+                        alturaTela < 550
+                            ? SizedBox.shrink()
+                            : SizedBox(
+                                height: alturaTela * 0.09,
+                              ),
                         ElevatedButton(
                           onPressed: () {
-                            Get.to(PrimeiroAcessoPage());
+                            Get.to(
+                              PrimeiroAcessoPage(
+                                emailApp: emailAppController.emailApp[0].email,
+                                senhaEmailApp:
+                                    emailAppController.emailApp[0].senha,
+                              ),
+                            );
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -449,6 +480,7 @@ Widget _buildLoginWeb(
   AssinouSCRController assinouSCRController,
   Function launchURL,
   Function showSenha,
+  EmailAppController emailAppController,
 ) {
   return Scaffold(
     body: Container(
@@ -517,8 +549,8 @@ Widget _buildLoginWeb(
                             child: TextButton(
                               onPressed: () {
                                 Get.dialog(
-                                  buildDialog(
-                                      cpfSenhaController, dataNascController),
+                                  buildDialog(cpfSenhaController,
+                                      dataNascController, emailAppController),
                                 );
                               },
                               child: Text(
@@ -605,7 +637,12 @@ Widget _buildLoginWeb(
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(PrimeiroAcessoPage());
+                      Get.to(
+                        PrimeiroAcessoPage(
+                          emailApp: emailAppController.emailApp[0].email,
+                          senhaEmailApp: emailAppController.emailApp[0].senha,
+                        ),
+                      );
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,

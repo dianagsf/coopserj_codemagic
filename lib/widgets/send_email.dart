@@ -9,11 +9,15 @@ import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 class SendEmail extends StatefulWidget {
   final String cpf;
   final String dataNasc;
+  final String emailApp;
+  final String senhaEmailApp;
 
   const SendEmail({
     Key key,
-    this.cpf,
-    this.dataNasc,
+    @required this.cpf,
+    @required this.dataNasc,
+    @required this.emailApp,
+    @required this.senhaEmailApp,
   }) : super(key: key);
 
   @override
@@ -27,7 +31,8 @@ class _SendEmailState extends State<SendEmail> {
   EnviarEmailWebRepository enviarEmailWebRepository =
       EnviarEmailWebRepository();
 
-  var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
+  //var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
+  var email;
 
   void _sendEmail({String nome, int matricula}) async {
     var data = formatDate(
@@ -64,6 +69,10 @@ class _SendEmailState extends State<SendEmail> {
   @override
   void initState() {
     super.initState();
+
+    print("email = ${widget.emailApp} // senha = ${widget.senhaEmailApp}");
+
+    email = Email(widget.emailApp, widget.senhaEmailApp);
 
     var cpf = widget.cpf.replaceAll('.', '').replaceAll('-', '');
     var data = widget.dataNasc.split('/');

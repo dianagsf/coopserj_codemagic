@@ -14,3 +14,4 @@ export 'assinou_lgdp_controller.dart';
 export 'assinou_scr_controller.dart';
 export 'controle_anexos_controller.dart';
 export 'pedido_quitacao.dart';
+export 'email_app_controller.dart';

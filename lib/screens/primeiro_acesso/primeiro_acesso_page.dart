@@ -10,7 +10,14 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class PrimeiroAcessoPage extends StatefulWidget {
-  const PrimeiroAcessoPage({Key key}) : super(key: key);
+  final String emailApp;
+  final String senhaEmailApp;
+
+  const PrimeiroAcessoPage({
+    Key key,
+    @required this.emailApp,
+    @required this.senhaEmailApp,
+  }) : super(key: key);
 
   @override
   _PrimeiroAcessoPageState createState() => _PrimeiroAcessoPageState();
@@ -31,7 +38,17 @@ class _PrimeiroAcessoPageState extends State<PrimeiroAcessoPage> {
   EnviarEmailWebRepository enviarEmailWebRepository =
       EnviarEmailWebRepository();
 
-  var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
+  //var email = Email('app@basiclinesistemas.com.br', 'Rbline@87105');
+  var email;
+
+  @override
+  void initState() {
+    super.initState();
+
+    print("email = ${widget.emailApp} // senha = ${widget.senhaEmailApp}");
+
+    email = Email(widget.emailApp, widget.senhaEmailApp);
+  }
 
   void _sendEmail({
     String nome,
@@ -44,7 +61,7 @@ class _PrimeiroAcessoPageState extends State<PrimeiroAcessoPage> {
         DateTime.now(), [dd, '/', mm, '/', yyyy, ' às ', HH, ':', nn]);
     print('MOBILLE!!');
     //TROCAR E-MAIL!!!
-    //rogerio.barradas@basicline.com.br
+    //atendimento@coopserj.coop.br
 
     bool result = await email.sendMessage(
         ' O associado ${nome.toUpperCase()} está solicitando acesso ao APP. \n\n NOME DO ASSOCIADO: ${nome.toUpperCase()}\n CPF: $cpf \n DATA NASCIMENTO: $dataNasc \n TELEFONE: $telefone \n E-MAIL: $emailAssoc \n\n DATA DA SOLICITAÇÃO: $data',

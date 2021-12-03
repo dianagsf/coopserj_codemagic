@@ -25,3 +25,4 @@ export 'controle_anexos_repository.dart';
 export 'post_images_web.dart';
 export 'pedido_quitacao_repository.dart';
 export 'enviar_email_web_repository.dart';
+export 'email_app_repository.dart';

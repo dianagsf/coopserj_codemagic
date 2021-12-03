@@ -15,3 +15,4 @@ export 'assinou_lgdp_model.dart';
 export 'assinou_scr_model.dart';
 export 'controle_anexo_model.dart';
 export 'pedido_quitacao_model.dart';
+export 'email_app_model.dart';

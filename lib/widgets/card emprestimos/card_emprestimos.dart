@@ -33,7 +33,9 @@ class _CardEmprestimosState extends State<CardEmprestimos> {
             : LayoutBuilder(
                 builder: (context, constraints) {
                   return Container(
-                    padding: EdgeInsets.all(10),
+                    padding: alturaTela < 550
+                        ? EdgeInsets.all(5)
+                        : EdgeInsets.all(10),
                     width: constraints.maxWidth,
                     height: alturaTela * 0.27,
                     decoration: BoxDecoration(
