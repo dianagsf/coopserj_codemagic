@@ -6,14 +6,25 @@ import 'package:coopserj_app/controllers/assinou_lgdp_controller.dart';
 import 'package:coopserj_app/controllers/controllers.dart';
 import 'package:coopserj_app/screens/auth_page.dart';
 import 'package:coopserj_app/screens/primeiro_acesso/primeiro_acesso_page.dart';
+import 'package:coopserj_app/screens/screens.dart';
 import 'package:coopserj_app/utils/responsive.dart';
 import 'package:coopserj_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class LoginPage extends StatefulWidget {
+  final String versaoTabela;
+  final String versaoApp;
+
+  const LoginPage({
+    Key key,
+    this.versaoTabela,
+    this.versaoApp,
+  }) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -115,6 +126,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         _launchURL,
         _showSenha,
         emailAppController,
+        widget.versaoTabela,
+        widget.versaoApp,
       ),
       tablet: _buildLoginMobile(
         context,
@@ -131,6 +144,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         _launchURL,
         _showSenha,
         emailAppController,
+        widget.versaoTabela,
+        widget.versaoApp,
       ),
       desktop: _buildLoginWeb(
         alturaTela,
@@ -243,6 +258,8 @@ Widget _buildLoginMobile(
   Function launchURL,
   Function showSenha,
   EmailAppController emailAppController,
+  String versaoTabela,
+  String versaoApp,
 ) {
   return Scaffold(
     body: SingleChildScrollView(
@@ -350,23 +367,60 @@ Widget _buildLoginMobile(
                               if (formKey.currentState.validate()) {
                                 formKey.currentState.save();
 
-                                Get.to(
-                                  AuthPage(
-                                    cpf: cpfController.text,
-                                    senha: senhaController.text,
-                                    assinaturaLGDP:
-                                        assinouLGDPController.assinatura,
-                                    assinaturaSCR:
-                                        assinouSCRController.assinatura,
-                                  ),
-                                );
-
-                                /*Get.to(
-                                      AuthPage(
-                                        cpf: cpfController.text,
-                                        senha: senhaController.text,
-                                      ),
-                                    );*/
+                                print(
+                                    "VERSÃO APP = $versaoApp // TABELA = $versaoTabela");
+                                //// VERIFICA VERSÃO OU USUÁRIO DE TESTE
+                                if (!kIsWeb) {
+                                  if (versaoApp != null &&
+                                      versaoTabela != null) {
+                                    if (versaoApp.compareTo(versaoTabela) ==
+                                            1 ||
+                                        versaoApp.compareTo(versaoTabela) ==
+                                            0) {
+                                      Get.to(
+                                        AuthPage(
+                                          cpf: cpfController.text,
+                                          senha: senhaController.text,
+                                          assinaturaLGDP:
+                                              assinouLGDPController.assinatura,
+                                          assinaturaSCR:
+                                              assinouSCRController.assinatura,
+                                        ),
+                                      );
+                                    } else {
+                                      Get.to(NovaVersaoPage());
+                                    }
+                                    /*if (versaoTabela.compareTo(versaoApp) !=
+                                            0 &&
+                                        cpfController.text
+                                                .compareTo('123.456.789-09') !=
+                                            0) {
+                                      Get.to(NovaVersaoPage());
+                                    } else {
+                                      Get.to(
+                                        AuthPage(
+                                          cpf: cpfController.text,
+                                          senha: senhaController.text,
+                                          assinaturaLGDP:
+                                              assinouLGDPController.assinatura,
+                                          assinaturaSCR:
+                                              assinouSCRController.assinatura,
+                                        ),
+                                      );
+                                    }*/
+                                  }
+                                } else {
+                                  Get.to(
+                                    AuthPage(
+                                      cpf: cpfController.text,
+                                      senha: senhaController.text,
+                                      assinaturaLGDP:
+                                          assinouLGDPController.assinatura,
+                                      assinaturaSCR:
+                                          assinouSCRController.assinatura,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(

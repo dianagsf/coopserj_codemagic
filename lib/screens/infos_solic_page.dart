@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:coopserj_app/controllers/controllers.dart';
 import 'package:coopserj_app/utils/format_money.dart';
 import 'package:coopserj_app/utils/responsive.dart';
@@ -6,6 +8,7 @@ import 'package:finance/finance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:get/get.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InfosSolicPage extends StatefulWidget {
@@ -31,6 +34,7 @@ class InfosSolicPage extends StatefulWidget {
 
 class _InfosSolicPageState extends State<InfosSolicPage> {
   SolicitacaoPostController _solicPostController = Get.find();
+  ControleAppController _controleAppController = Get.find();
   FormatMoney money = FormatMoney();
 
   MaskedTextController senhaController = MaskedTextController(mask: "000000");
@@ -41,6 +45,8 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
   double valorLiquido = 0.0;
   double iof = 0.0;
   double iofAdicional = 0.0;
+  double taxa = 0.0;
+  double cetAno = 0.0;
 
   final formKey = new GlobalKey<FormState>();
 
@@ -53,7 +59,9 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
 
   double calculaIOF(double valorFinanciado, double taxa) {
     double iofAdicional = 0.0;
-    double fatorIOF = 0.01118 / 100;
+    double taxaFatorIOF =
+        _controleAppController.controleAPP[0].taxaFatorIOF; // 0.0082
+    double fatorIOF = taxaFatorIOF / 100;
     double valorAmortizacao = 0.0;
 
     int np = int.parse(_solicPostController.controllerParcelas.text);
@@ -65,6 +73,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     var ultimoDiaMes;
     var dataCredito = DateTime(now.year, now.month, now.day)
         .add(Duration(days: 1)); //DIA SEGUINTE
+
     DateTime dataPrimeiraPrestacao;
     // var fimmes = fechamentoFolhaController.fechamentoFolha[0].fimmes;
 
@@ -118,39 +127,39 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
 
   calculaValores() {
     int parcelas = int.parse(_solicPostController.controllerParcelas.text);
-    double taxa = 0.0;
-
-    if (widget.categoria.compareTo("NORMAL") == 0) {
-      if (parcelas >= 1 && parcelas <= 4) {
-        taxa = 1.00;
-      }
-      if (parcelas >= 5 && parcelas <= 8) {
-        taxa = 1.20;
-      }
-      if (parcelas >= 9 && parcelas <= 12) {
-        taxa = 1.30;
-      }
-      if (parcelas >= 13 && parcelas <= 24) {
-        taxa = 1.50;
-      }
-      if (parcelas >= 25 && parcelas <= 36) {
-        taxa = 1.80;
-      }
-    }
-
-    if (widget.categoria.compareTo("CAMPANHA") == 0) {
-      if (parcelas <= 6) {
-        taxa = 0.89;
-      }
-      if (parcelas >= 7 && parcelas <= 18) {
-        taxa = 0.99;
-      }
-      if (parcelas >= 19 && parcelas <= 48) {
-        taxa = 1.60;
-      }
-    }
+    double taxaIOF = _controleAppController.controleAPP[0].taxaIOF; // 0.38
 
     setState(() {
+      if (widget.categoria.compareTo("NORMAL") == 0) {
+        if (parcelas >= 1 && parcelas <= 4) {
+          taxa = 1.00;
+        }
+        if (parcelas >= 5 && parcelas <= 8) {
+          taxa = 1.20;
+        }
+        if (parcelas >= 9 && parcelas <= 12) {
+          taxa = 1.30;
+        }
+        if (parcelas >= 13 && parcelas <= 24) {
+          taxa = 1.50;
+        }
+        if (parcelas >= 25 && parcelas <= 36) {
+          taxa = 1.80;
+        }
+      }
+
+      if (widget.categoria.compareTo("CAMPANHA") == 0) {
+        if (parcelas <= 6) {
+          taxa = 0.89;
+        }
+        if (parcelas >= 7 && parcelas <= 18) {
+          taxa = 0.99;
+        }
+        if (parcelas >= 19 && parcelas <= 48) {
+          taxa = 1.60;
+        }
+      }
+
       valorFinanciado = double.parse(
           _convertDouble(_solicPostController.controllerValor.text));
       valorDesconto = Finance.pmt(
@@ -164,14 +173,76 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
 
       print("IOF adicional = $iofAdicional");
 
-      iof = ((0.38 / 100) * valorFinanciado) + iofAdicional;
+      iof = ((taxaIOF / 100) * valorFinanciado) + iofAdicional;
 
       valorLiquido = valorFinanciado - iof;
     });
   }
 
+  double calculaCETMes() {
+    int parcelas = int.parse(_solicPostController.controllerParcelas.text);
+    double valorContrato = valorLiquido;
+    List<double> cetPrestacoes = [];
+    double taxaIOF = _controleAppController.controleAPP[0].taxaIOF; // 0.38
+
+    double xam = double.parse((valorContrato / parcelas).toStringAsFixed(2));
+    double xpr;
+    var soma;
+    var xp;
+    var xh;
+    var xDIF;
+    var xCET;
+
+    for (int i = 1; i <= parcelas; i++) {
+      xpr =
+          double.parse(((valorContrato * taxa / 100) + xam).toStringAsFixed(2));
+
+      if (i == 1) {
+        xpr = xpr +
+            double.parse((valorContrato * taxaIOF / 100).toStringAsFixed(2));
+      }
+
+      cetPrestacoes.add(xpr);
+      valorContrato = valorContrato - xam;
+    }
+
+    for (double j = 0.0; j < 100.0; j = j + 0.01) {
+      soma = 0.0;
+      for (int i = 1; i <= parcelas; i++) {
+        xp = pow((1 + j / 100), i);
+
+        if (xp == 0) xp = 1;
+
+        xh = double.parse((cetPrestacoes[i - 1] / xp).toStringAsFixed(2));
+
+        soma = soma + xh;
+      }
+      if (soma != 0.0) {
+        xDIF = soma - valorLiquido;
+
+        if (xDIF < 0) {
+          print("Encontrou o CET ideal");
+          break;
+        }
+      }
+
+      xCET = j;
+      cetAno = double.parse(
+          ((pow((1 + xCET / 100), 12) - 1) * 100).toStringAsFixed(2));
+    }
+
+    return xCET;
+  }
+
+  calculaCETAnual(double cetMes) {
+    setState(() {
+      cetAno = (pow((1 + cetMes / 100), 12) - 1) * 100;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    double cetMes = 0.0;
     final alturaTela =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
@@ -184,6 +255,11 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     }
 
     calculaValores();
+    cetMes = calculaCETMes();
+    calculaCETAnual(cetMes);
+
+    print(
+        "CET ANO = ${cetAno.toStringAsFixed(2)} /// ${cetMes.toStringAsFixed(2)}");
 
     handleCancel() {
       Get.back();
@@ -329,6 +405,13 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
               _buildCardInfo(
+                "Número de prestações",
+                Icons.format_list_numbered_outlined,
+                _solicPostController.controllerParcelas.text,
+              ),
+              const SizedBox(height: 10.0),
+              Divider(height: 5.0),
+              _buildCardInfo(
                 "IOF",
                 Icons.info,
                 money.formatterMoney(iof),
@@ -336,7 +419,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
               _buildCardInfo(
-                "Estimativa de Desconto em Folha",
+                "Estimativa de Desconto Mensal em Folha",
                 Icons.money_off,
                 money.formatterMoney(valorDesconto),
               ),
@@ -347,13 +430,29 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
                 Icons.payment,
                 money.formatterMoney(valorLiquido),
               ),
-              /*const SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Divider(height: 5.0),
               _buildCardInfo(
-                "Número de anexos",
-                Icons.file_copy_outlined,
-                "0",
-              ),*/
+                "Total a pagar",
+                MdiIcons.cashMultiple,
+                money.formatterMoney(double.parse((valorDesconto *
+                        int.parse(_solicPostController.controllerParcelas.text))
+                    .toString())),
+              ),
+              const SizedBox(height: 10.0),
+              Divider(height: 5.0),
+              _buildCardInfo(
+                "Taxa de Juros",
+                MdiIcons.ticketPercentOutline,
+                "$taxa%",
+              ),
+              const SizedBox(height: 10.0),
+              Divider(height: 5.0),
+              _buildCardInfo(
+                "CET",
+                MdiIcons.percentOutline,
+                "${cetMes.toStringAsFixed(2)}% a.m. ${cetAno.toStringAsFixed(2)}% a.a.",
+              ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
               _buildCardInfo(

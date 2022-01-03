@@ -24,47 +24,66 @@ class _NovaVersaoPageState extends State<NovaVersaoPage> {
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 247, 247, 247),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "images/versao.png",
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 30),
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              "Seu app está desatualizado! Baixe a nova versão para continuar.",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 25,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _launchURL,
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: Colors.red),
+      body: SafeArea(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 4,
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Image.asset(
+                    "images/versao.png",
+                    fit: BoxFit.scaleDown,
+                  ),
                 ),
               ),
-              child: Text(
-                "Baixar nova versão",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
+              const SizedBox(height: 30),
+              Expanded(
+                flex: 3,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Seu app está desatualizado! Baixe a nova versão para continuar.",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 25,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 10, top: 10),
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _launchURL,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        side: BorderSide(color: Colors.red),
+                      ),
+                    ),
+                    child: Text(
+                      "Baixar nova versão",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }

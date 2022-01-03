@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
 
 class MainDrawer extends StatelessWidget {
   final String nome;
@@ -103,106 +104,110 @@ class MainDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 150,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              margin: const EdgeInsets.only(top: 10),
-              alignment: Alignment.bottomLeft,
-              child: Image.asset(
-                'images/logo.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                nome.toUpperCase(),
-                overflow: TextOverflow.visible,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 150,
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                margin: const EdgeInsets.only(top: 10),
+                alignment: Alignment.bottomLeft,
+                child: Image.asset(
+                  'images/logo.png',
+                  fit: BoxFit.scaleDown,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                "matrícula: ${matricula.toString()}",
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-            Divider(),
-            _createItem(
-              Icons.home_outlined,
-              'PÁGINA INICIAL',
-              () => Get.to(
-                HomePage(
-                  nome: nome,
-                  matricula: matricula,
-                  email: "",
-                  telefone: "",
-                  senha: senha,
-                  cpf: cpf,
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  nome.toUpperCase(),
+                  overflow: TextOverflow.visible,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            Divider(),
-            _createItem(
-              Icons.work_outline,
-              'CONVÊNIOS',
-              () {},
-            ),
-            Divider(),
-            _createItem(
-              Icons.credit_card,
-              'EMPRÉSTIMOS',
-              () {},
-            ),
-            Divider(),
-            _createItem(
-              Icons.payments_outlined,
-              'PEDIDO DE QUITAÇÃO',
-              () => Get.to(
-                QuitacaoPage(matricula: matricula, senha: senha),
+              Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: Text(
+                  "matrícula: ${matricula.toString()}",
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
-            ),
-            Divider(),
-            _createItem(
-              Icons.work_off_outlined,
-              'PEDIDO DE DESLIGAMENTO',
-              () => Get.to(DesligamentoPage()),
-            ),
-            Divider(),
-            _createItem(
-              Icons.face,
-              'PESSOA EXPOSTA',
-              () =>
-                  Get.to(PessoaExpostaPage(matricula: matricula, senha: senha)),
-            ),
-            Divider(),
-            _createItem(
-              Icons.info_outline,
-              'INFORMAÇÕES',
-              () => Get.to(InfoPage()),
-            ),
-            Divider(),
-            _createItem(
-              MdiIcons.whatsapp,
-              'FALE CONOSCO',
-              _launchURL,
-            ),
-            Divider(),
-            _createItem(
-              Icons.exit_to_app,
-              'SAIR',
-              () => Get.to(LoginPage()),
-            ),
-          ],
+              Divider(),
+              _createItem(
+                Icons.home_outlined,
+                'PÁGINA INICIAL',
+                () => Get.to(
+                  HomePage(
+                    nome: nome,
+                    matricula: matricula,
+                    email: "",
+                    telefone: "",
+                    senha: senha,
+                    cpf: cpf,
+                  ),
+                ),
+              ),
+              Divider(),
+              _createItem(
+                Icons.work_outline,
+                'CONVÊNIOS',
+                () {},
+              ),
+              Divider(),
+              _createItem(
+                Icons.credit_card,
+                'EMPRÉSTIMOS',
+                () {},
+              ),
+              Divider(),
+              _createItem(
+                Icons.payments_outlined,
+                'PEDIDO DE QUITAÇÃO',
+                () => Get.to(
+                  QuitacaoPage(matricula: matricula, senha: senha),
+                ),
+              ),
+              Divider(),
+              _createItem(
+                Icons.work_off_outlined,
+                'PEDIDO DE DESLIGAMENTO',
+                () => Get.to(DesligamentoPage()),
+              ),
+              Divider(),
+              _createItem(
+                Icons.face,
+                'PESSOA EXPOSTA',
+                () => Get.to(
+                    PessoaExpostaPage(matricula: matricula, senha: senha)),
+              ),
+              Divider(),
+              _createItem(
+                Icons.info_outline,
+                'INFORMAÇÕES',
+                () => Get.to(InfoPage()),
+              ),
+              Divider(),
+              _createItem(
+                MdiIcons.whatsapp,
+                'FALE CONOSCO',
+                _launchURL,
+              ),
+              Divider(),
+              _createItem(
+                Icons.exit_to_app,
+                'SAIR',
+                () => kIsWeb ? Get.to(LoginPage()) : Get.to(InitialPage()),
+              ),
+            ],
+          ),
         ),
       ),
     );
