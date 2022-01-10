@@ -155,19 +155,15 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
         if (parcelas >= 7 && parcelas <= 18) {
           taxa = 0.99;
         }
-        if (parcelas >= 19 && parcelas <= 48) {
+        if (parcelas >= 19 && parcelas <= 60) {
           taxa = 1.60;
         }
       }
 
+      print("TAXA = $taxa");
+
       valorFinanciado = double.parse(
           _convertDouble(_solicPostController.controllerValor.text));
-      valorDesconto = Finance.pmt(
-            rate: taxa / 100, //VER A TAXA
-            nper: parcelas,
-            pv: valorFinanciado,
-          ) *
-          -1;
 
       iofAdicional = calculaIOF(valorFinanciado, taxa);
 
@@ -175,7 +171,16 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
 
       iof = ((taxaIOF / 100) * valorFinanciado) + iofAdicional;
 
-      valorLiquido = valorFinanciado - iof;
+      valorDesconto = Finance.pmt(
+            rate: taxa / 100,
+            nper: parcelas,
+            pv: (valorFinanciado + iof),
+          ) *
+          -1;
+
+      print("DESCONTO = $valorDesconto");
+
+      valorLiquido = valorFinanciado + iof;
     });
   }
 
@@ -246,6 +251,8 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     final alturaTela =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
+    print("IOF = $iof");
+
     _launchURL(String url) async {
       if (await canLaunch(url)) {
         await launch(url);
@@ -290,6 +297,8 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
                       tokenController.text,
                       widget.banco,
                       valorDesconto,
+                      iof,
+                      valorLiquido,
                     );
 
                     if (!Responsive.isDesktop(context)) Get.back();
@@ -398,7 +407,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               ),
               const SizedBox(height: 30.0),
               _buildCardInfo(
-                "Valor Financiado",
+                "Valor Líquido",
                 Icons.attach_money,
                 money.formatterMoney(valorFinanciado),
               ),
@@ -426,7 +435,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
               _buildCardInfo(
-                "Estimativa de Valor Líquido",
+                "Estimativa de Valor Financiado",
                 Icons.payment,
                 money.formatterMoney(valorLiquido),
               ),

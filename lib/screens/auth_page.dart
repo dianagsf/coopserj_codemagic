@@ -89,7 +89,11 @@ class _AuthPageState extends State<AuthPage> {
                               assinatura.matricula ==
                               snapshot.data[0].matricula);
 
+                      var assinouSCR = widget.assinaturaSCR.any((assinatura) =>
+                          assinatura.matricula == snapshot.data[0].matricula);
+
                       print('ASSINOU = $assinouLGDP');
+                      ///// PRECISA VERIFICAR SE ASSINOU TERMO SRC TAMBÉM!!!!
 
                       /// VERIFICA SE A INTEGRAÇÃO ESTÁ SENDO FEITA!!!
                       return _.controleAPP.length < 1
@@ -99,7 +103,7 @@ class _AuthPageState extends State<AuthPage> {
                             )
                           : _.controleAPP[0].iNTEGRACAO != 1
                               ? snapshot.data[0].bloqueia != 1
-                                  ? assinouLGDP
+                                  ? assinouLGDP && assinouSCR
                                       ? HomePage(
                                           nome: snapshot.data[0].nome,
                                           matricula: snapshot.data[0].matricula,
@@ -108,13 +112,23 @@ class _AuthPageState extends State<AuthPage> {
                                           senha: snapshot.data[0].senha,
                                           cpf: snapshot.data[0].cpf,
                                         )
-                                      : TermoLGDP(
-                                          nome: snapshot.data[0].nome,
-                                          matricula: snapshot.data[0].matricula,
-                                          senha: snapshot.data[0].senha,
-                                          cpf: snapshot.data[0].cpf,
-                                          assinaturaSCR: widget.assinaturaSCR,
-                                        )
+                                      : assinouLGDP
+                                          ? TermoSCR(
+                                              nome: snapshot.data[0].nome,
+                                              cpf: snapshot.data[0].cpf,
+                                              matricula:
+                                                  snapshot.data[0].matricula,
+                                              senha: snapshot.data[0].senha,
+                                            )
+                                          : TermoLGDP(
+                                              nome: snapshot.data[0].nome,
+                                              matricula:
+                                                  snapshot.data[0].matricula,
+                                              senha: snapshot.data[0].senha,
+                                              cpf: snapshot.data[0].cpf,
+                                              assinaturaSCR:
+                                                  widget.assinaturaSCR,
+                                            )
                                   : ManutencaoPage()
                               : ManutencaoPage();
                     },
