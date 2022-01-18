@@ -6,7 +6,6 @@ import 'package:coopserj_app/models/models.dart';
 import 'package:coopserj_app/repositories/repositories.dart';
 import 'package:coopserj_app/utils/format_money.dart';
 import 'package:coopserj_app/utils/responsive.dart';
-import 'package:coopserj_app/utils/storage_service.dart';
 import 'package:coopserj_app/widgets/widgets.dart';
 import 'package:date_format/date_format.dart';
 import 'package:file_picker/file_picker.dart';
@@ -14,7 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; // verifica se tá na WEB
 
 class QuitacaoPage extends StatefulWidget {
   final int matricula;
@@ -49,15 +49,101 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
   ImagePostRepository imagePostRepository = ImagePostRepository();
 
   List<PropostaModel> selectedEmp = [];
-  StorageService _storageService = StorageService();
+
+  bool anexoGaleria;
+
+  _escolherGaleriaFoto() {
+    Get.dialog(
+      AlertDialog(
+        title: Text("Escolha uma forma de enviar o documento:"),
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        anexoGaleria = true;
+                        getImageWeb();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.pink,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: Colors.pink),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(
+                          MdiIcons.imageMultipleOutline,
+                          size: 25,
+                        ),
+                        Text(
+                          "Galeria",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  height: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        anexoGaleria = false;
+                        getImage();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(
+                          MdiIcons.camera,
+                          size: 25,
+                        ),
+                        Text(
+                          "Câmera",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   _uploadComprovante() {
-    _storageService.uploadComprovante(
-      _image.path,
-      widget.matricula,
-      "comprovanteQuitacao",
-      protocolo: protocolo,
-    );
+    if (_image != null) {
+      imagePostRepository.uploadImage(
+        _image.readAsBytesSync(),
+        protocolo,
+        "comprovante",
+        "comprovanteQuitacao",
+        "jpg",
+      );
+    }
   }
 
   _uploadComprovanteWeb() {
@@ -69,7 +155,6 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
         protocolo,
         "comprovante",
         "comprovanteQuitacao",
-        "quitacao",
         extensaoArq,
       );
     }
@@ -124,6 +209,7 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
         }
       },
     );
+    Get.back();
   }
 
   handleDeleteImage() {
@@ -140,12 +226,16 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
     setState(
       () {
         if (pickedFile != null) {
-          _imageWeb = pickedFile.files.first.bytes;
+          _imageWeb = kIsWeb
+              ? pickedFile.files.single.bytes
+              : File(pickedFile.files.single.path).readAsBytesSync();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+
+    if (!kIsWeb) Get.back();
   }
 
   handleDeleteImageWeb() {
@@ -176,7 +266,7 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
       );
     }
 
-    if (Responsive.isDesktop(context) || kIsWeb) {
+    if (Responsive.isDesktop(context) || kIsWeb || anexoGaleria) {
       if (_imageWeb == null) {
         Get.dialog(
           AlertDialog(
@@ -248,7 +338,7 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                       });
                     }
 
-                    Responsive.isDesktop(context) || kIsWeb
+                    Responsive.isDesktop(context) || kIsWeb || anexoGaleria
                         ? _uploadComprovanteWeb()
                         : _uploadComprovante();
 
@@ -290,6 +380,9 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
   @override
   void initState() {
     super.initState();
+
+    anexoGaleria = false;
+
     propostaController.propostas.forEach((prop) {
       saldoDevedor = saldoDevedor + double.parse(prop.valorQuitacao.toString());
     });
@@ -394,7 +487,13 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                             : const EdgeInsets.only(left: 20),
                         alignment: Alignment.centerLeft,
                         child: buildAnexoButton(
-                            context, getImage, getImageWeb, alturaTela),
+                          context,
+                          getImage,
+                          getImageWeb,
+                          _escolherGaleriaFoto,
+                          alturaTela,
+                          anexoGaleria,
+                        ),
                       ),
                       _image != null || _imageWeb != null
                           ? Padding(
@@ -409,16 +508,19 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                                     margin: const EdgeInsets.only(bottom: 5),
                                     constraints: BoxConstraints(
                                         maxHeight: 60.0, maxWidth: 50.0),
-                                    child:
-                                        Responsive.isDesktop(context) || kIsWeb
-                                            ? SizedBox.shrink()
-                                            : Image.file(
-                                                _image,
-                                                fit: BoxFit.cover,
-                                              ),
+                                    child: Responsive.isDesktop(context) ||
+                                            kIsWeb ||
+                                            anexoGaleria
+                                        ? SizedBox.shrink()
+                                        : Image.file(
+                                            _image,
+                                            fit: BoxFit.cover,
+                                          ),
                                   ),
                                   const SizedBox(width: 4.0),
-                                  Responsive.isDesktop(context) || kIsWeb
+                                  Responsive.isDesktop(context) ||
+                                          kIsWeb ||
+                                          anexoGaleria
                                       ? Expanded(
                                           child: Text(pickedFile != null
                                               ? '${pickedFile.files.first.name}'
@@ -431,10 +533,11 @@ class _QuitacaoPageState extends State<QuitacaoPage> {
                                       Icons.delete_forever_outlined,
                                       color: Colors.red,
                                     ),
-                                    onPressed:
-                                        Responsive.isDesktop(context) || kIsWeb
-                                            ? handleDeleteImageWeb
-                                            : handleDeleteImage,
+                                    onPressed: Responsive.isDesktop(context) ||
+                                            kIsWeb ||
+                                            anexoGaleria
+                                        ? handleDeleteImageWeb
+                                        : handleDeleteImage,
                                   ),
                                 ],
                               ),
@@ -720,10 +823,16 @@ Widget buildAnexoButton(
   BuildContext context,
   Function getImage,
   Function getImageWeb,
+  Function escolherGaleriaFoto,
   double alturaTela,
+  bool anexoGaleria,
 ) {
   return ElevatedButton.icon(
-    onPressed: Responsive.isDesktop(context) || kIsWeb ? getImageWeb : getImage,
+    onPressed: () {
+      Responsive.isDesktop(context) || kIsWeb
+          ? getImageWeb()
+          : escolherGaleriaFoto();
+    },
     style: ElevatedButton.styleFrom(
       primary: Colors.blue[600],
       shape: RoundedRectangleBorder(

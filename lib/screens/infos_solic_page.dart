@@ -84,8 +84,9 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
       ultimoDiaMes = DateTime(now.year, now.month + 2, 0).day;
       dataPrimeiraPrestacao = DateTime(now.year, now.month + 1, ultimoDiaMes);
     }*/
-    ultimoDiaMes = DateTime(now.year, now.month + 1, 0).day;
-    dataPrimeiraPrestacao = DateTime(now.year, now.month, ultimoDiaMes);
+
+    ultimoDiaMes = DateTime(now.year, now.month + 2, 0).day;
+    dataPrimeiraPrestacao = DateTime(now.year, now.month + 1, ultimoDiaMes);
 
     int dias = dataPrimeiraPrestacao.difference(dataCredito).inDays + 1;
     var taxaJuros = 2;

@@ -1,7 +1,3 @@
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
-import 'package:amplify_flutter/amplify.dart';
-import 'package:amplify_storage_s3/amplify_storage_s3.dart';
-import 'package:coopserj_app/amplifyconfiguration.dart';
 import 'package:coopserj_app/controllers/assinou_lgdp_controller.dart';
 import 'package:coopserj_app/controllers/controllers.dart';
 import 'package:coopserj_app/screens/auth_page.dart';
@@ -49,25 +45,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   MaskedTextController dataNascController =
       MaskedTextController(mask: '00/00/0000');
 
-  //CONFIGURAÇÃO INICIAL AMPLIFY STORAGE
-  void _configureAmplify() async {
-    AmplifyAuthCognito authPlugin = AmplifyAuthCognito();
-    AmplifyStorageS3 storagePlugin = AmplifyStorageS3();
-    Amplify.addPlugin(authPlugin);
-    Amplify.addPlugin(storagePlugin);
-
-    try {
-      await Amplify.configure(amplifyconfig);
-      print('Successfully configured Amplify 🎉');
-    } catch (e) {
-      print('Could not configure Amplify ☠️');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _configureAmplify();
 
     //get e-mail e senha app
     emailAppController.getDadosEmailApp();
@@ -91,9 +71,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
     double larguraTela = MediaQuery.of(context).size.width;
-
-    print(
-        "ALTURA TELA = $alturaTela // MEDIA = ${MediaQuery.of(context).size.height}");
 
     _launchURL() async {
       const url = 'https://www.coopserj.coop.br/cadastre-se';

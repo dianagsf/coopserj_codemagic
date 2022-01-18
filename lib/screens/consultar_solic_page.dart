@@ -6,14 +6,14 @@ import 'package:coopserj_app/models/models.dart';
 import 'package:coopserj_app/repositories/repositories.dart';
 import 'package:coopserj_app/utils/format_money.dart';
 import 'package:coopserj_app/utils/responsive.dart';
-import 'package:coopserj_app/utils/storage_service.dart';
 import 'package:coopserj_app/widgets/widgets.dart';
 import 'package:date_format/date_format.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb; // verifica se tá na WEB
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart'; // verifica se tá na WEB
 
 class ConsultaSolicPage extends StatefulWidget {
   final int matricula;
@@ -38,21 +38,24 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
       ControleAnexosRepository();
 
   FormatMoney money = FormatMoney();
-  StorageService _storageService = StorageService();
 
-  File _anexoRG;
+  bool anexoGaleria = false;
+
+  /* File _anexoRG;
   File _contracheque;
-  File _comprovanteResid;
+  File _comprovanteResid;*/
   final picker = ImagePicker();
 
   //WEB
-  Uint8List _anexoRGWeb;
-  Uint8List _contrachequeWeb;
-  Uint8List _comprovanteResidWeb;
+  Uint8List _anexoRGFrente;
+  Uint8List _anexoRGVerso;
+  Uint8List _contracheque;
+  Uint8List _comprovanteResid;
   FilePickerResult pickedFile;
   ImagePostRepository imagePostRepository = ImagePostRepository();
 
-  String extensaoRG;
+  String extensaoRGFrente;
+  String extensaoRGVerso;
   String extensaoContracheque;
   String extensaoComprovResid;
 
@@ -62,54 +65,157 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     solicitacoesController.getSolicitacoes(widget.matricula);
   }
 
+  _escolherGaleriaFoto(Function getCamera, Function getGaleria) {
+    Get.dialog(
+      AlertDialog(
+        title: Text("Escolha uma forma de enviar o documento:"),
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        anexoGaleria = true;
+                        getGaleria();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.pink,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: Colors.pink),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(
+                          MdiIcons.imageMultipleOutline,
+                          size: 25,
+                        ),
+                        Text(
+                          "Galeria",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  height: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        anexoGaleria = false;
+                        getCamera();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(
+                          MdiIcons.camera,
+                          size: 25,
+                        ),
+                        Text(
+                          "Câmera",
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future getRG() async {
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 70);
+    final pickedFile = await picker.getImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+    );
 
     setState(
       () {
         if (pickedFile != null) {
-          _anexoRG = File(pickedFile.path);
+          if (_anexoRGFrente != null)
+            _anexoRGVerso = File(pickedFile.path).readAsBytesSync();
+          else
+            _anexoRGFrente = File(pickedFile.path).readAsBytesSync();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+
+    Get.back();
   }
 
   Future getContracheque() async {
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 70);
+    final pickedFile = await picker.getImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+    );
 
     setState(
       () {
         if (pickedFile != null) {
-          _contracheque = File(pickedFile.path);
+          _contracheque = File(pickedFile.path).readAsBytesSync();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+
+    Get.back();
   }
 
   Future getComprovanteResid() async {
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 70);
+    final pickedFile = await picker.getImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+    );
 
     setState(
       () {
         if (pickedFile != null) {
-          _comprovanteResid = File(pickedFile.path);
+          _comprovanteResid = File(pickedFile.path).readAsBytesSync();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+
+    Get.back();
   }
 
-  handleDeleteRG() {
+  handleDeleteRGFrente() {
     setState(() {
-      _anexoRG = null;
+      _anexoRGFrente = null;
+    });
+  }
+
+  handleDeleteRGVerso() {
+    setState(() {
+      _anexoRGVerso = null;
     });
   }
 
@@ -125,7 +231,7 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     });
   }
 
-  uploadDocumentos() {
+  /*uploadDocumentos() async {
     SolicitacaoModel solicitacao = solicitacoesController.solicitacoes
         .lastWhere((solic) =>
             solic.situacao != null && solic.situacao.compareTo("L") == 0);
@@ -196,23 +302,26 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     if (_anexoRG != null &&
         _comprovanteResid != null &&
         _contracheque != null) {
-      _storageService.uploadImageAtPath(
-        _anexoRG.path,
+      await imagePostRepository.uploadImage(
+        _anexoRG.readAsBytesSync(),
+        solicitacao.numero,
         "RG",
         "simulacaoEmprestimo",
-        solicitacao.numero,
+        extensaoRG,
       );
-      _storageService.uploadImageAtPath(
-        _anexoRG.path,
+      await imagePostRepository.uploadImage(
+        _contracheque.readAsBytesSync(),
+        solicitacao.numero,
         "contracheque",
         "simulacaoEmprestimo",
-        solicitacao.numero,
+        extensaoContracheque,
       );
-      _storageService.uploadImageAtPath(
-        _anexoRG.path,
+      await imagePostRepository.uploadImage(
+        _comprovanteResid.readAsBytesSync(),
+        solicitacao.numero,
         "comprovanteResid",
         "simulacaoEmprestimo",
-        solicitacao.numero,
+        extensaoComprovResid,
       );
 
       /// SALVA NA TABELA DE CONTROLE O ENVIO DOS ANEXOS
@@ -236,7 +345,7 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
         duration: Duration(seconds: 4),
       );
     }
-  }
+  }*/
 
   ///////////////////////////////// WEB ///////////////////////
 
@@ -248,13 +357,24 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     setState(
       () {
         if (pickedFile != null) {
-          _anexoRGWeb = pickedFile.files.first.bytes;
-          extensaoRG = pickedFile.files.first.extension.toString();
+          if (_anexoRGFrente != null) {
+            _anexoRGVerso = kIsWeb
+                ? pickedFile.files.single.bytes
+                : File(pickedFile.files.single.path).readAsBytesSync();
+            extensaoRGVerso = pickedFile.files.first.extension.toString();
+          } else {
+            _anexoRGFrente = kIsWeb
+                ? pickedFile.files.single.bytes
+                : File(pickedFile.files.single.path).readAsBytesSync();
+            extensaoRGFrente = pickedFile.files.first.extension.toString();
+          }
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+
+    if (!kIsWeb) Get.back();
   }
 
   Future getContrachequeWeb() async {
@@ -265,13 +385,16 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     setState(
       () {
         if (pickedFile != null) {
-          _contrachequeWeb = pickedFile.files.first.bytes;
+          _contracheque = kIsWeb
+              ? pickedFile.files.single.bytes
+              : File(pickedFile.files.single.path).readAsBytesSync();
           extensaoContracheque = pickedFile.files.first.extension.toString();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+    if (!kIsWeb) Get.back();
   }
 
   Future getComprovanteResidWeb() async {
@@ -282,39 +405,45 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
     setState(
       () {
         if (pickedFile != null) {
-          _comprovanteResidWeb = pickedFile.files.first.bytes;
+          _comprovanteResid = kIsWeb
+              ? pickedFile.files.single.bytes
+              : File(pickedFile.files.single.path).readAsBytesSync();
           extensaoComprovResid = pickedFile.files.first.extension.toString();
         } else {
           print('Nenhuma imagem selecionada.');
         }
       },
     );
+    if (!kIsWeb) Get.back();
   }
 
-  handleDeleteRGWeb() {
+  /* handleDeleteRGWeb() {
     setState(() {
       _anexoRGWeb = null;
+      numAnexos -= 1;
     });
   }
 
   handleDeleteContrachequeWeb() {
     setState(() {
       _contrachequeWeb = null;
+      numAnexos -= 1;
     });
   }
 
   handleDeleteComprovanteResidWeb() {
     setState(() {
       _comprovanteResidWeb = null;
+      numAnexos -= 1;
     });
-  }
+  }*/
 
-  uploadDocumentosWeb() {
+  uploadDocumentos() {
     SolicitacaoModel solicitacao = solicitacoesController.solicitacoes
         .lastWhere((solic) =>
             solic.situacao != null && solic.situacao.compareTo("L") == 0);
 
-    if (_anexoRGWeb == null) {
+    if (_anexoRGFrente == null && _anexoRGVerso == null) {
       Get.dialog(
         AlertDialog(
           title: Text("Atenção!"),
@@ -335,7 +464,7 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
       );
     }
 
-    if (_contrachequeWeb == null) {
+    if (_contracheque == null) {
       Get.dialog(
         AlertDialog(
           title: Text("Atenção!"),
@@ -356,7 +485,7 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
       );
     }
 
-    if (_comprovanteResidWeb == null) {
+    if (_comprovanteResid == null) {
       Get.dialog(
         AlertDialog(
           title: Text("Atenção!"),
@@ -377,32 +506,42 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
       );
     }
 
-    if (_anexoRGWeb != null &&
-        _contrachequeWeb != null &&
-        _comprovanteResidWeb != null) {
+    if ((_anexoRGFrente != null || _anexoRGVerso != null) &&
+        _contracheque != null &&
+        _comprovanteResid != null) {
+      if (_anexoRGFrente != null) {
+        imagePostRepository.uploadImage(
+          _anexoRGFrente,
+          solicitacao.numero,
+          "RG",
+          "simulacaoEmprestimo",
+          extensaoRGFrente != null ? extensaoRGFrente : 'jpg',
+        );
+      }
+
+      if (_anexoRGVerso != null) {
+        imagePostRepository.uploadImage(
+          _anexoRGVerso,
+          solicitacao.numero,
+          "RG",
+          "simulacaoEmprestimo",
+          extensaoRGVerso != null ? extensaoRGVerso : 'jpg',
+        );
+      }
+
       imagePostRepository.uploadImage(
-        _anexoRGWeb,
-        solicitacao.numero,
-        "RG",
-        "simulacaoEmprestimo",
-        "emprestimo",
-        extensaoRG,
-      );
-      imagePostRepository.uploadImage(
-        _contrachequeWeb,
+        _contracheque,
         solicitacao.numero,
         "contracheque",
         "simulacaoEmprestimo",
-        "emprestimo",
-        extensaoContracheque,
+        extensaoContracheque != null ? extensaoContracheque : 'jpg',
       );
       imagePostRepository.uploadImage(
-        _comprovanteResidWeb,
+        _comprovanteResid,
         solicitacao.numero,
         "comprovanteResid",
         "simulacaoEmprestimo",
-        "emprestimo",
-        extensaoComprovResid,
+        extensaoComprovResid != null ? extensaoComprovResid : 'jpg',
       );
 
       /// SALVA NA TABELA DE CONTROLE O ENVIO DOS ANEXOS
@@ -518,36 +657,27 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
                           context,
                           _.controleAnexos,
                           solicitacoesController,
-                          _anexoRG,
+                          getRG,
+                          getContracheque,
+                          getComprovanteResid,
+                          getRGWeb,
+                          getContrachequeWeb,
+                          getComprovanteResidWeb,
+                          handleDeleteRGFrente,
+                          handleDeleteRGVerso,
+                          handleDeleteContracheque,
+                          handleDeleteComprovanteResid,
+                          uploadDocumentos,
+                          _anexoRGFrente,
+                          _anexoRGVerso,
                           _contracheque,
                           _comprovanteResid,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? getRGWeb
-                              : getRG,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? getContrachequeWeb
-                              : getContracheque,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? getComprovanteResidWeb
-                              : getComprovanteResid,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? handleDeleteRGWeb
-                              : handleDeleteRG,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? handleDeleteContrachequeWeb
-                              : handleDeleteContracheque,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? handleDeleteComprovanteResidWeb
-                              : handleDeleteComprovanteResid,
-                          Responsive.isDesktop(context) || kIsWeb
-                              ? uploadDocumentosWeb
-                              : uploadDocumentos,
-                          _anexoRGWeb,
-                          _contrachequeWeb,
-                          _comprovanteResidWeb,
-                          extensaoRG,
+                          extensaoRGFrente,
+                          extensaoRGVerso,
                           extensaoContracheque,
                           extensaoComprovResid,
+                          _escolherGaleriaFoto,
+                          anexoGaleria,
                         );
                       },
                     ),
@@ -828,22 +958,27 @@ Widget buildAnexosContainer(
   BuildContext context,
   List<ControleAnexoModel> controleAnexos,
   SolicitacoesController solicitacoesController,
-  File _anexoRG,
-  File _contracheque,
-  File _comprovanteResid,
   Function getRG,
   Function getContracheque,
   Function getComprovanteResid,
-  Function handleDeleteRG,
+  Function getRGWeb,
+  Function getContrachequeWeb,
+  Function getComprovanteResidWeb,
+  Function handleDeleteRGFrente,
+  Function handleDeleteRGVerso,
   Function handleDeleteContracheque,
   Function handleDeleteComprovanteResid,
   Function uploadDocumentos,
-  Uint8List _anexoRGWeb,
-  Uint8List _contrachequeWeb,
-  Uint8List _comprovanteResidWeb,
-  String extensaoRG,
+  Uint8List _anexoRGFrente,
+  Uint8List _anexoRGVerso,
+  Uint8List _contracheque,
+  Uint8List _comprovanteResid,
+  String extensaoRGFrente,
+  String extensaoRGVerso,
   String extensaoContracheque,
   String extensaoComprovResid,
+  Function escolherGaleriaFoto,
+  bool anexoGaleria,
 ) {
   List<SolicitacaoModel> solicLiberadas = solicitacoesController.solicitacoes
       .where((sol) => sol.situacao != null && sol.situacao.compareTo('L') == 0)
@@ -880,135 +1015,55 @@ Widget buildAnexosContainer(
               ),
             ),
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  leading: Icon(
-                    Icons.person_add_alt_1,
-                    color: Colors.purpleAccent,
-                    size: 30,
-                  ),
-                  title: Text(
-                    "Anexar RG",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: _anexoRG != null || _anexoRGWeb != null
-                      ? _showImage(
-                          context,
-                          _anexoRG,
-                          _anexoRGWeb,
-                          'rg',
-                          extensaoRG,
-                          handleDeleteRG,
-                        )
-                      : SizedBox.shrink(),
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.add,
-                    ),
-                    onPressed: getRG,
-                  ),
-                ),
-              ),
+            _buildCardAnexos(
+              _anexoRGFrente,
+              _anexoRGVerso,
+              context,
+              extensaoRGFrente,
+              extensaoRGVerso,
+              handleDeleteRGFrente,
+              handleDeleteRGVerso,
+              getRG,
+              getRGWeb,
+              'RG',
+              escolherGaleriaFoto,
             ),
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  leading: Icon(
-                    Icons.playlist_add,
-                    color: Colors.orangeAccent,
-                    size: 30,
-                  ),
-                  title: Text(
-                    "Anexar contracheque",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: _contracheque != null || _contrachequeWeb != null
-                      ? _showImage(
-                          context,
-                          _contracheque,
-                          _contrachequeWeb,
-                          'contracheque',
-                          extensaoContracheque,
-                          handleDeleteContracheque,
-                        )
-                      : SizedBox.shrink(),
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.add,
-                    ),
-                    onPressed: getContracheque,
-                  ),
-                ),
-              ),
+            _buildCardAnexos(
+              _contracheque,
+              null,
+              context,
+              extensaoContracheque,
+              null,
+              handleDeleteContracheque,
+              null,
+              getContracheque,
+              getContrachequeWeb,
+              'contracheque',
+              escolherGaleriaFoto,
             ),
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  leading: Icon(
-                    Icons.add_business_sharp,
-                    color: Colors.blueAccent,
-                    size: 30,
-                  ),
-                  title: Text(
-                    "Anexar comprovante de residência",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle:
-                      _comprovanteResid != null || _comprovanteResidWeb != null
-                          ? _showImage(
-                              context,
-                              _comprovanteResid,
-                              _comprovanteResidWeb,
-                              'comprovanteResid',
-                              extensaoComprovResid,
-                              handleDeleteComprovanteResid,
-                            )
-                          : SizedBox.shrink(),
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.add,
-                    ),
-                    onPressed: getComprovanteResid,
-                  ),
-                ),
-              ),
+            _buildCardAnexos(
+              _comprovanteResid,
+              null,
+              context,
+              extensaoComprovResid,
+              null,
+              handleDeleteComprovanteResid,
+              null,
+              getComprovanteResid,
+              getComprovanteResidWeb,
+              'comprovanteResid',
+              escolherGaleriaFoto,
             ),
             Center(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 30),
                 width: 100,
                 child: ElevatedButton(
-                  onPressed: uploadDocumentos,
+                  onPressed: () {
+                    uploadDocumentos();
+                  },
                   style: ElevatedButton.styleFrom(
                     primary: Colors.blue[600],
                     shape: RoundedRectangleBorder(
@@ -1031,42 +1086,107 @@ Widget buildAnexosContainer(
   return SizedBox.shrink();
 }
 
+Widget _buildCardAnexos(
+  Uint8List _anexo,
+  Uint8List _anexoRGVerso,
+  BuildContext context,
+  String extensao,
+  String extensaoRGVerso,
+  Function handleDelete,
+  Function handleDeleteRGVerso,
+  Function getAnexo,
+  Function getAnexoWeb,
+  String nomeArq,
+  Function escolherGaleriaFoto,
+) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    child: Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        leading: Icon(
+          Icons.description_outlined,
+          color: Colors.blue,
+          size: 30,
+        ),
+        title: Text(
+          "Anexar $nomeArq",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: _anexo != null
+            ? _anexoRGVerso != null
+                ? Column(
+                    children: [
+                      _showImage(
+                        context,
+                        _anexo,
+                        nomeArq,
+                        extensao,
+                        handleDelete,
+                      ),
+                      _showImage(
+                        context,
+                        _anexoRGVerso,
+                        nomeArq,
+                        extensaoRGVerso,
+                        handleDeleteRGVerso,
+                      )
+                    ],
+                  )
+                : _showImage(
+                    context,
+                    _anexo,
+                    nomeArq,
+                    extensao,
+                    handleDelete,
+                  )
+            : SizedBox.shrink(),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.add,
+          ),
+          onPressed: () {
+            Responsive.isDesktop(context) || kIsWeb
+                ? getAnexoWeb()
+                : escolherGaleriaFoto(getAnexo, getAnexoWeb);
+          },
+        ),
+      ),
+    ),
+  );
+}
+
 Widget _showImage(
   BuildContext context,
-  File image,
-  Uint8List imageWeb,
+  Uint8List image,
   String label,
   String extensao,
   Function handleDeleteImage,
 ) {
-  return image != null || imageWeb != null
+  return image != null
       ? Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           child: Row(
             children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 5),
-                constraints: BoxConstraints(maxHeight: 60.0, maxWidth: 50.0),
-                child: Responsive.isDesktop(context) || kIsWeb
-                    ? SizedBox.shrink()
-                    : Image.file(
-                        image,
-                        fit: BoxFit.cover,
-                      ),
-              ),
-              const SizedBox(width: 4.0),
               Expanded(
-                child: Responsive.isDesktop(context) || kIsWeb
-                    ? Text("$label.$extensao")
-                    : Text("$label.jpg"),
+                child:
+                    Text(extensao != null ? "$label.$extensao" : "$label.jpg"),
               ),
               IconButton(
-                icon: Icon(
-                  Icons.delete_forever_outlined,
-                  color: Colors.red,
-                ),
-                onPressed: handleDeleteImage,
-              ),
+                  icon: Icon(
+                    Icons.delete_forever_outlined,
+                    color: Colors.red,
+                  ),
+                  onPressed: () {
+                    handleDeleteImage();
+                  }),
             ],
           ),
         )

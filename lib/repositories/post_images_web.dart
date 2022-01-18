@@ -8,7 +8,6 @@ class ImagePostRepository {
     int protocolo,
     String label,
     String pasta,
-    String operacao,
     String extensao,
   ) async {
     String url = 'http://54.207.211.41:3100/images';
