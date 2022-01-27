@@ -85,6 +85,7 @@ class SolicitacaoPostController extends GetxController {
     double prestacao,
     double iof,
     double valorLiquido,
+    String dataPrimeiraPrestacao,
   ) {
     this._solicitacaoInfo = [
       {
@@ -109,6 +110,7 @@ class SolicitacaoPostController extends GetxController {
         "conta": int.parse(contaController.text),
         "telefone": telController.text,
         "token": token,
+        "datavencimento": dataPrimeiraPrestacao,
       }
     ];
 

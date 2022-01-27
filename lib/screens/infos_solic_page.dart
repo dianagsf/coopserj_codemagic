@@ -47,6 +47,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
   double iofAdicional = 0.0;
   double taxa = 0.0;
   double cetAno = 0.0;
+  DateTime dataPrimeiraPrestacao;
 
   final formKey = new GlobalKey<FormState>();
 
@@ -74,19 +75,10 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     var dataCredito = DateTime(now.year, now.month, now.day)
         .add(Duration(days: 1)); //DIA SEGUINTE
 
-    DateTime dataPrimeiraPrestacao;
-    // var fimmes = fechamentoFolhaController.fechamentoFolha[0].fimmes;
+    ultimoDiaMes = DateTime(now.year, now.month + 3, 0).day;
 
-    /* if (fimmes == 0) {
-      ultimoDiaMes = DateTime(now.year, now.month + 1, 0).day;
-      dataPrimeiraPrestacao = DateTime(now.year, now.month, ultimoDiaMes);
-    } else {
-      ultimoDiaMes = DateTime(now.year, now.month + 2, 0).day;
-      dataPrimeiraPrestacao = DateTime(now.year, now.month + 1, ultimoDiaMes);
-    }*/
-
-    ultimoDiaMes = DateTime(now.year, now.month + 2, 0).day;
-    dataPrimeiraPrestacao = DateTime(now.year, now.month + 1, ultimoDiaMes);
+    dataPrimeiraPrestacao =
+        DateTime(now.year, now.month + 2, ultimoDiaMes); //2 meses depois
 
     int dias = dataPrimeiraPrestacao.difference(dataCredito).inDays + 1;
     var taxaJuros = 2;
@@ -300,6 +292,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
                       valorDesconto,
                       iof,
                       valorLiquido,
+                      dataPrimeiraPrestacao.toString().substring(0, 23),
                     );
 
                     if (!Responsive.isDesktop(context)) Get.back();
