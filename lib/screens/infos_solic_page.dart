@@ -80,7 +80,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     dataPrimeiraPrestacao =
         DateTime(now.year, now.month + 2, ultimoDiaMes); //2 meses depois
 
-    int dias = dataPrimeiraPrestacao.difference(dataCredito).inDays + 1;
+    int dias = dataPrimeiraPrestacao.difference(dataCredito).inDays;
     var taxaJuros = 2;
     var saldo = 0.0;
     var xiof = 0.0;
