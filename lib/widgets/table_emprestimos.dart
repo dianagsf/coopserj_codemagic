@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 class TableEmprestimos extends StatelessWidget {
   final List<PropostaModel> propostas;
 
-  const TableEmprestimos({Key key, this.propostas}) : super(key: key);
+  const TableEmprestimos({
+    Key key,
+    @required this.propostas,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

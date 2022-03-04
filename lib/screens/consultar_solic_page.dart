@@ -443,7 +443,108 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
         .lastWhere((solic) =>
             solic.situacao != null && solic.situacao.compareTo("L") == 0);
 
-    if (_anexoRGFrente == null && _anexoRGVerso == null) {
+    if (_anexoRGFrente == null &&
+        _anexoRGVerso == null &&
+        _contracheque == null &&
+        _comprovanteResid == null) {
+      Get.dialog(
+        AlertDialog(
+          title: Text("Atenção!"),
+          content: Text(
+            "Você deve enviar os anexos pedidos para concluir a solicitação.",
+            style: TextStyle(fontSize: 18),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(
+                'OK',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      if (_anexoRGFrente != null) {
+        imagePostRepository.uploadImage(
+          _anexoRGFrente,
+          solicitacao.numero,
+          "RG",
+          "simulacaoEmprestimo",
+          extensaoRGFrente != null ? extensaoRGFrente : 'jpg',
+        );
+
+        //SALVA RG
+        controleAnexosRepository.postAnexos({
+          "data": DateTime.now().toString().substring(0, 19),
+          "matricula": widget.matricula,
+          "solic": solicitacao.numero,
+          "tipo": "RG",
+        });
+      }
+
+      if (_anexoRGVerso != null) {
+        imagePostRepository.uploadImage(
+          _anexoRGVerso,
+          solicitacao.numero,
+          "RG",
+          "simulacaoEmprestimo",
+          extensaoRGVerso != null ? extensaoRGVerso : 'jpg',
+        );
+      }
+
+      if (_contracheque != null) {
+        imagePostRepository.uploadImage(
+          _contracheque,
+          solicitacao.numero,
+          "contracheque",
+          "simulacaoEmprestimo",
+          extensaoContracheque != null ? extensaoContracheque : 'jpg',
+        );
+
+        //SALVA Contracheque
+        controleAnexosRepository.postAnexos({
+          "data": DateTime.now().toString().substring(0, 19),
+          "matricula": widget.matricula,
+          "solic": solicitacao.numero,
+          "tipo": "ctrcheque",
+        });
+      }
+
+      if (_comprovanteResid != null) {
+        imagePostRepository.uploadImage(
+          _comprovanteResid,
+          solicitacao.numero,
+          "comprovanteResid",
+          "simulacaoEmprestimo",
+          extensaoComprovResid != null ? extensaoComprovResid : 'jpg',
+        );
+
+        //SALVA Comprovante de residencia
+        controleAnexosRepository.postAnexos({
+          "data": DateTime.now().toString().substring(0, 19),
+          "matricula": widget.matricula,
+          "solic": solicitacao.numero,
+          "tipo": "compResid",
+        });
+      }
+
+      // Get.back();
+      Get.back();
+      Get.snackbar(
+        "Os documentos foram enviados com sucesso!",
+        "",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.only(bottom: 5),
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 4),
+      );
+    }
+
+    /*if (_anexoRGFrente == null && _anexoRGVerso == null) {
       Get.dialog(
         AlertDialog(
           title: Text("Atenção!"),
@@ -504,66 +605,7 @@ class _ConsultaSolicPageState extends State<ConsultaSolicPage> {
           ],
         ),
       );
-    }
-
-    if ((_anexoRGFrente != null || _anexoRGVerso != null) &&
-        _contracheque != null &&
-        _comprovanteResid != null) {
-      if (_anexoRGFrente != null) {
-        imagePostRepository.uploadImage(
-          _anexoRGFrente,
-          solicitacao.numero,
-          "RG",
-          "simulacaoEmprestimo",
-          extensaoRGFrente != null ? extensaoRGFrente : 'jpg',
-        );
-      }
-
-      if (_anexoRGVerso != null) {
-        imagePostRepository.uploadImage(
-          _anexoRGVerso,
-          solicitacao.numero,
-          "RG",
-          "simulacaoEmprestimo",
-          extensaoRGVerso != null ? extensaoRGVerso : 'jpg',
-        );
-      }
-
-      imagePostRepository.uploadImage(
-        _contracheque,
-        solicitacao.numero,
-        "contracheque",
-        "simulacaoEmprestimo",
-        extensaoContracheque != null ? extensaoContracheque : 'jpg',
-      );
-      imagePostRepository.uploadImage(
-        _comprovanteResid,
-        solicitacao.numero,
-        "comprovanteResid",
-        "simulacaoEmprestimo",
-        extensaoComprovResid != null ? extensaoComprovResid : 'jpg',
-      );
-
-      /// SALVA NA TABELA DE CONTROLE O ENVIO DOS ANEXOS
-      controleAnexosRepository.postAnexos({
-        "data": DateTime.now().toString().substring(0, 19),
-        "matricula": widget.matricula,
-        "solic": solicitacao.numero,
-      });
-
-      // Get.back();
-      Get.back();
-      Get.snackbar(
-        "Os documentos foram enviados com sucesso!",
-        "",
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        padding: EdgeInsets.all(10),
-        margin: EdgeInsets.only(bottom: 5),
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 4),
-      );
-    }
+    }*/
   }
 
   @override
@@ -767,6 +809,15 @@ Widget _buildTableSolic(
                     ),
                   ),
                   DataColumn(
+                    label: Text(
+                      'Modalidade',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  DataColumn(
                     label: Container(
                       alignment: Alignment.center,
                       padding: const EdgeInsets.only(left: 7),
@@ -886,6 +937,16 @@ Widget _buildTableSolic(
                         Container(
                           alignment: Alignment.center,
                           child: Text(
+                            '${solic.contratos != null && solic.contratos.toString().isNotEmpty ? 'Refin' : 'Solic Emp'}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: colorRow),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Container(
+                          alignment: Alignment.center,
+                          child: Text(
                             '$status',
                             textAlign: TextAlign.center,
                             style: TextStyle(color: colorRow),
@@ -984,16 +1045,31 @@ Widget buildAnexosContainer(
       .where((sol) => sol.situacao != null && sol.situacao.compareTo('L') == 0)
       .toList();
 
-  bool mostraAnexo = true;
+  bool mostraAnexoRG = true;
+  bool mostraAnexoContraCheque = true;
+  bool mostraAnexoCompResid = true;
 
   if (solicLiberadas.length != 0) {
     solicLiberadas.forEach((element) {
-      if (controleAnexos.length != 0 &&
-          controleAnexos.any((sol) => sol.solic == element.numero))
-        mostraAnexo = false;
+      if (controleAnexos.length != 0) {
+        if (controleAnexos.any((sol) =>
+            sol.solic == element.numero &&
+            (sol.tipo != null && sol.tipo.compareTo("RG") == 0)))
+          mostraAnexoRG = false;
+
+        if (controleAnexos.any((sol) =>
+            sol.solic == element.numero &&
+            (sol.tipo != null && sol.tipo.compareTo("ctrcheque") == 0)))
+          mostraAnexoContraCheque = false;
+
+        if (controleAnexos.any((sol) =>
+            sol.solic == element.numero &&
+            (sol.tipo != null && sol.tipo.compareTo("compResid") == 0)))
+          mostraAnexoCompResid = false;
+      }
     });
 
-    if (mostraAnexo) {
+    if (mostraAnexoRG || mostraAnexoContraCheque || mostraAnexoCompResid) {
       return Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1015,47 +1091,50 @@ Widget buildAnexosContainer(
               ),
             ),
             const SizedBox(height: 20),
-            _buildCardAnexos(
-              _anexoRGFrente,
-              _anexoRGVerso,
-              context,
-              extensaoRGFrente,
-              extensaoRGVerso,
-              handleDeleteRGFrente,
-              handleDeleteRGVerso,
-              getRG,
-              getRGWeb,
-              'RG',
-              escolherGaleriaFoto,
-            ),
+            if (mostraAnexoRG)
+              _buildCardAnexos(
+                _anexoRGFrente,
+                _anexoRGVerso,
+                context,
+                extensaoRGFrente,
+                extensaoRGVerso,
+                handleDeleteRGFrente,
+                handleDeleteRGVerso,
+                getRG,
+                getRGWeb,
+                'RG',
+                escolherGaleriaFoto,
+              ),
             const SizedBox(height: 10),
-            _buildCardAnexos(
-              _contracheque,
-              null,
-              context,
-              extensaoContracheque,
-              null,
-              handleDeleteContracheque,
-              null,
-              getContracheque,
-              getContrachequeWeb,
-              'contracheque',
-              escolherGaleriaFoto,
-            ),
+            if (mostraAnexoContraCheque)
+              _buildCardAnexos(
+                _contracheque,
+                null,
+                context,
+                extensaoContracheque,
+                null,
+                handleDeleteContracheque,
+                null,
+                getContracheque,
+                getContrachequeWeb,
+                'contracheque',
+                escolherGaleriaFoto,
+              ),
             const SizedBox(height: 10),
-            _buildCardAnexos(
-              _comprovanteResid,
-              null,
-              context,
-              extensaoComprovResid,
-              null,
-              handleDeleteComprovanteResid,
-              null,
-              getComprovanteResid,
-              getComprovanteResidWeb,
-              'comprovanteResid',
-              escolherGaleriaFoto,
-            ),
+            if (mostraAnexoCompResid)
+              _buildCardAnexos(
+                _comprovanteResid,
+                null,
+                context,
+                extensaoComprovResid,
+                null,
+                handleDeleteComprovanteResid,
+                null,
+                getComprovanteResid,
+                getComprovanteResidWeb,
+                'comprovanteResid',
+                escolherGaleriaFoto,
+              ),
             Center(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 30),
@@ -1115,7 +1194,7 @@ Widget _buildCardAnexos(
           size: 30,
         ),
         title: Text(
-          "Anexar $nomeArq",
+          "Anexar $nomeArq ${nomeArq.compareTo("RG") == 0 ? "(frente e verso)" : ""}",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),

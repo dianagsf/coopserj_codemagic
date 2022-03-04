@@ -32,6 +32,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   CategoriasController categoriasController = Get.put(CategoriasController());
+  CategoriasTaxasController categoriasTaxasController =
+      Get.put(CategoriasTaxasController());
   BancosController bancosController = Get.put(BancosController());
   ConveniosController conveniosController = Get.put(ConveniosController());
   NotificacoesController notificacoesController =
@@ -168,6 +170,10 @@ class _HomePageState extends State<HomePage> {
 
     //get categorias solic
     categoriasController.getCategorias();
+
+    //get categorias taxas
+    categoriasTaxasController.getCategoriasTaxas();
+
     //get bancos solic
     bancosController.getBancos();
     conveniosController.getConvenios(widget.matricula);

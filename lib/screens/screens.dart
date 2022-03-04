@@ -14,6 +14,8 @@ export 'solicitar_emprestimo_page.dart';
 export 'pessoa_exposta_page.dart';
 export 'infos_solic_page.dart';
 export 'consultar_solic_page.dart';
+export 'refinanciamento/refinanciar_emprestimo_page.dart';
+export 'refinanciamento/info_refinanciamento_page.dart';
 export 'controle/manutencao_page.dart';
 export 'controle/versao_page.dart';
 export 'controle/initial_page.dart';

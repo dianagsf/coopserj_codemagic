@@ -3,12 +3,14 @@ class ControleModel {
   String vERSAO;
   double taxaIOF;
   double taxaFatorIOF;
+  double taxaRefin;
 
   ControleModel({
     this.iNTEGRACAO,
     this.vERSAO,
     this.taxaIOF,
     this.taxaFatorIOF,
+    this.taxaRefin,
   });
 
   ControleModel.fromJson(Map<String, dynamic> json) {
@@ -16,6 +18,7 @@ class ControleModel {
     vERSAO = json['VERSAO'];
     taxaIOF = json['TAXA_IOF'];
     taxaFatorIOF = json['FATOR_IOF'];
+    taxaRefin = json['TAXA_REFIN'];
   }
 
   Map<String, dynamic> toJson() {
@@ -24,6 +27,7 @@ class ControleModel {
     data['VERSAO'] = this.vERSAO;
     data['TAXA_IOF'] = this.taxaIOF;
     data['FATOR_IOF'] = this.taxaFatorIOF;
+    data['TAXA_REFIN'] = this.taxaRefin;
     return data;
   }
 }

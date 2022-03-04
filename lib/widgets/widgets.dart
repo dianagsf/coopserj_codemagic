@@ -10,4 +10,5 @@ export 'card emprestimos/card_emprestimos.dart';
 export 'send_email.dart';
 export 'table_convenios.dart';
 export 'card_notification.dart';
+export 'card_info_emp_reneg.dart';
 export 'table_solic_pendentes.dart';

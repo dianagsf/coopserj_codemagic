@@ -5,6 +5,7 @@ export 'convenio_detalhes_model.dart';
 export 'solicitacoes_post_model.dart';
 export 'emprestimos_contratados_model.dart';
 export 'categorias_model.dart';
+export 'categorias_taxas_model.dart';
 export 'solic_pendentes_model.dart';
 export 'solicitacoes_model.dart';
 export 'controle_model.dart';

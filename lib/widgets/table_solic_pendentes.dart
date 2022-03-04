@@ -84,6 +84,15 @@ class _TableSolicPendentesState extends State<TableSolicPendentes> {
                       ),
                     ),
                     DataColumn(
+                      label: Text(
+                        "Modalidade",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
                       label: Container(
                         padding: const EdgeInsets.only(left: 10),
                         child: Text(
@@ -148,6 +157,15 @@ class _TableSolicPendentesState extends State<TableSolicPendentes> {
                             alignment: Alignment.center,
                             child: Text(
                               "$prestacao",
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              "${sol.contratos != null && sol.contratos.toString().isNotEmpty ? 'Refin' : 'Solic Emp'}",
                               textAlign: TextAlign.center,
                             ),
                           ),

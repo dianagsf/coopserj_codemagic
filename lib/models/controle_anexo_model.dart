@@ -3,14 +3,22 @@ class ControleAnexoModel {
   String data;
   int matricula;
   var solic;
+  String tipo;
 
-  ControleAnexoModel({this.numero, this.data, this.matricula, this.solic});
+  ControleAnexoModel({
+    this.numero,
+    this.data,
+    this.matricula,
+    this.solic,
+    this.tipo,
+  });
 
   ControleAnexoModel.fromJson(Map<String, dynamic> json) {
     numero = json['numero'];
     data = json['data'];
     matricula = json['matricula'];
     solic = json['solic'];
+    tipo = json['tipo'];
   }
 
   Map<String, dynamic> toJson() {
@@ -19,6 +27,7 @@ class ControleAnexoModel {
     data['data'] = this.data;
     data['matricula'] = this.matricula;
     data['solic'] = this.solic;
+    data['tipo'] = this.tipo;
     return data;
   }
 }

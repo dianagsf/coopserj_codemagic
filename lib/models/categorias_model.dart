@@ -2,7 +2,10 @@ class CategoriasModel {
   String codigo;
   String nome;
 
-  CategoriasModel({this.codigo, this.nome});
+  CategoriasModel({
+    this.codigo,
+    this.nome,
+  });
 
   CategoriasModel.fromJson(Map<String, dynamic> json) {
     codigo = json['codigo'];

@@ -5,6 +5,7 @@ class SolicPendentesModel {
   var valor;
   int np;
   var prestacao;
+  var contratos;
 
   SolicPendentesModel({
     this.numero,
@@ -13,6 +14,7 @@ class SolicPendentesModel {
     this.valor,
     this.np,
     this.prestacao,
+    this.contratos,
   });
 
   SolicPendentesModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class SolicPendentesModel {
     valor = json['valor'];
     np = json['np'];
     prestacao = json['prestacao'];
+    contratos = json['CONTRATOS'];
   }
 
   Map<String, dynamic> toJson() {
@@ -32,6 +35,7 @@ class SolicPendentesModel {
     data['valor'] = this.valor;
     data['np'] = this.np;
     data['prestacao'] = this.prestacao;
+    data['CONTRATOS'] = this.contratos;
     return data;
   }
 }

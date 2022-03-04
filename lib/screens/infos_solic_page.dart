@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:coopserj_app/controllers/controllers.dart';
+import 'package:coopserj_app/models/models.dart';
 import 'package:coopserj_app/utils/format_money.dart';
 import 'package:coopserj_app/utils/responsive.dart';
+import 'package:coopserj_app/widgets/widgets.dart';
 import 'package:finance/finance.dart';
 
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ class InfosSolicPage extends StatefulWidget {
   final int matricula;
   final int selectedRadio;
   final String categoria;
+  final String categoriaCodigo;
   final int protocolo;
   final String senha;
   final String banco;
@@ -24,6 +27,7 @@ class InfosSolicPage extends StatefulWidget {
     @required this.matricula,
     @required this.selectedRadio,
     @required this.categoria,
+    @required this.categoriaCodigo,
     @required this.protocolo,
     @required this.senha,
     @required this.banco,
@@ -35,6 +39,8 @@ class InfosSolicPage extends StatefulWidget {
 class _InfosSolicPageState extends State<InfosSolicPage> {
   SolicitacaoPostController _solicPostController = Get.find();
   ControleAppController _controleAppController = Get.find();
+  CategoriasTaxasController categoriasTaxasController = Get.find();
+
   FormatMoney money = FormatMoney();
 
   MaskedTextController senhaController = MaskedTextController(mask: "000000");
@@ -81,7 +87,9 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
         DateTime(now.year, now.month + 2, ultimoDiaMes); //2 meses depois
 
     int dias = dataPrimeiraPrestacao.difference(dataCredito).inDays;
-    var taxaJuros = 2;
+    var taxaJuros = taxa;
+
+    ///2;= taxa!!
     var saldo = 0.0;
     var xiof = 0.0;
     DateTime dataVencimento = DateTime.parse(dataPrimeiraPrestacao.toString());
@@ -122,8 +130,21 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     int parcelas = int.parse(_solicPostController.controllerParcelas.text);
     double taxaIOF = _controleAppController.controleAPP[0].taxaIOF; // 0.38
 
+    List<CategoriasTaxasModel> categoriaInfos = categoriasTaxasController
+        .categoriasTaxas
+        .where(
+            (cat) => cat.codigoCategoria.compareTo(widget.categoriaCodigo) == 0)
+        .toList();
+
     setState(() {
-      if (widget.categoria.compareTo("NORMAL") == 0) {
+      for (int i = 0; i < categoriaInfos.length; i++) {
+        if (parcelas >= categoriaInfos[i].minParcela &&
+            parcelas <= categoriaInfos[i].maxParcela) {
+          taxa = double.parse(categoriaInfos[i].taxa.toString());
+        }
+      }
+
+      /*if (widget.categoria.compareTo("NORMAL") == 0) {
         if (parcelas >= 1 && parcelas <= 4) {
           taxa = 1.00;
         }
@@ -151,7 +172,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
         if (parcelas >= 19 && parcelas <= 60) {
           taxa = 1.60;
         }
-      }
+      }*/
 
       print("TAXA = $taxa");
 
@@ -244,8 +265,6 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
     final alturaTela =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
-    print("IOF = $iof");
-
     _launchURL(String url) async {
       if (await canLaunch(url)) {
         await launch(url);
@@ -302,7 +321,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
 
                     Get.snackbar(
                       "Aguarde!",
-                      "Sua solicitação será analisada pela Diretoria.",
+                      "Sua solicitação será analisada pela Diretoria até o próximo dia útil.",
                       colorText: Colors.white,
                       backgroundColor: Colors.green[700],
                       snackPosition: SnackPosition.BOTTOM,
@@ -393,75 +412,76 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
                 child: Text(
                   "Solicitação de Empréstimo",
                   style: TextStyle(
-                    fontSize: alturaTela * 0.035, //26.0,
+                    fontSize: alturaTela * 0.033, //26.0,
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               const SizedBox(height: 30.0),
-              _buildCardInfo(
-                "Valor Líquido",
-                Icons.attach_money,
-                money.formatterMoney(valorFinanciado),
+              CardInfo(
+                title: "Valor Líquido",
+                icon: Icons.attach_money,
+                value: money.formatterMoney(valorFinanciado),
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Número de prestações",
-                Icons.format_list_numbered_outlined,
-                _solicPostController.controllerParcelas.text,
+              CardInfo(
+                title: "Número de prestações",
+                icon: Icons.format_list_numbered_outlined,
+                value: _solicPostController.controllerParcelas.text,
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "IOF",
-                Icons.info,
-                money.formatterMoney(iof),
+              CardInfo(
+                title: "IOF",
+                icon: Icons.info,
+                value: money.formatterMoney(iof),
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Estimativa de Desconto Mensal em Folha",
-                Icons.money_off,
-                money.formatterMoney(valorDesconto),
+              CardInfo(
+                title: "Estimativa de Desconto Mensal em Folha",
+                icon: Icons.money_off,
+                value: money.formatterMoney(valorDesconto),
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Estimativa de Valor Financiado",
-                Icons.payment,
-                money.formatterMoney(valorLiquido),
+              CardInfo(
+                title: "Estimativa de Valor Financiado",
+                icon: Icons.payment,
+                value: money.formatterMoney(valorLiquido),
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Total a pagar",
-                MdiIcons.cashMultiple,
-                money.formatterMoney(double.parse((valorDesconto *
+              CardInfo(
+                title: "Total a pagar",
+                icon: MdiIcons.cashMultiple,
+                value: money.formatterMoney(double.parse((valorDesconto *
                         int.parse(_solicPostController.controllerParcelas.text))
                     .toString())),
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Taxa de Juros",
-                MdiIcons.ticketPercentOutline,
-                "$taxa%",
+              CardInfo(
+                title: "Taxa de Juros",
+                icon: MdiIcons.ticketPercentOutline,
+                value: "$taxa%",
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "CET",
-                MdiIcons.percentOutline,
-                "${cetMes.toStringAsFixed(2)}% a.m. ${cetAno.toStringAsFixed(2)}% a.a.",
+              CardInfo(
+                title: "CET",
+                icon: MdiIcons.percentOutline,
+                value:
+                    "${cetMes.toStringAsFixed(2)}% a.m. ${cetAno.toStringAsFixed(2)}% a.a.",
               ),
               const SizedBox(height: 10.0),
               Divider(height: 5.0),
-              _buildCardInfo(
-                "Categoria",
-                Icons.format_align_left_outlined,
-                widget.categoria,
+              CardInfo(
+                title: "Categoria",
+                icon: Icons.format_align_left_outlined,
+                value: widget.categoria,
               ),
               const SizedBox(height: 40),
               Container(
@@ -522,47 +542,6 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
       ),
     );
   }
-}
-
-Widget _buildCardInfo(String title, IconData icon, String value) {
-  return Padding(
-    padding: EdgeInsets.only(top: 40.0, left: 20.0),
-    child: Row(
-      children: [
-        Container(
-          height: 45.0,
-          width: 45.0,
-          decoration: BoxDecoration(
-              color: Colors.blue[700],
-              borderRadius: BorderRadius.all(Radius.circular(60.0))),
-          child: Icon(
-            icon,
-            size: 25.0,
-            color: Colors.white,
-          ),
-        ),
-        SizedBox(
-          width: 20.0,
-        ),
-        Expanded(
-          child: Text(
-            "$title",
-            style: TextStyle(color: Colors.black, fontSize: 16.0),
-          ),
-        ),
-        SizedBox(
-          width: 25.0,
-        ),
-        Container(
-          margin: const EdgeInsets.only(right: 20),
-          child: Text(
-            "$value",
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-          ),
-        )
-      ],
-    ),
-  );
 }
 
 Widget _buildButton(

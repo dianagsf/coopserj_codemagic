@@ -72,6 +72,13 @@ class MainDrawer extends StatelessWidget {
               senha: senha,
             ),
           ),
+          buildSubMenu(
+            'REFINANCIAR EMPRÉSTIMO',
+            RefinanciarEmprestimoPage(
+              senha: senha,
+              matricula: matricula,
+            ),
+          ),
         ],
       );
     }

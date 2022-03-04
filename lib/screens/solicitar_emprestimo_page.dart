@@ -26,6 +26,7 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
   SolicitacaoPostController _solicPostController =
       Get.put(SolicitacaoPostController());
   CategoriasController categoriasController = Get.find();
+  CategoriasTaxasController categoriasTaxasController = Get.find();
   BancosController bancosController = Get.find();
 
   FormatMoney money = FormatMoney();
@@ -125,8 +126,11 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
                         'Quantidade de parcelas',
                         _solicPostController.controllerParcelas,
                         true,
-                        validateTextField: (value) =>
-                            _validateParcelas(value, categoria),
+                        validateTextField: (value) => _validateParcelas(
+                          value,
+                          categoriasTaxasController,
+                          categoria,
+                        ),
                       ),
                       /*Text(
                         "* permitido até 60 parcelas",
@@ -170,7 +174,11 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
                                     ),
                                     const SizedBox(height: 20),
                                     categoria != null
-                                        ? tableModalidade(categoria.nome)
+                                        ? tableModalidade(
+                                            categoria.nome,
+                                            categoria.codigo,
+                                            categoriasTaxasController,
+                                          )
                                         : SizedBox.shrink(),
                                   ],
                                 );
@@ -300,6 +308,7 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
                           matricula: widget.matricula,
                           selectedRadio: selectedRadio,
                           categoria: categoria.nome,
+                          categoriaCodigo: categoria.codigo,
                           protocolo: protocolo,
                           senha: widget.senha,
                           banco: "${banco.codigo} - ${banco.nome}",
@@ -336,7 +345,11 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
   }
 }
 
-Widget tableModalidade(String categoria) {
+Widget tableModalidade(
+  String categoria,
+  String categoriaCodigo,
+  CategoriasTaxasController categoriasTaxasController,
+) {
   return Column(
     children: [
       Text(
@@ -373,115 +386,17 @@ Widget tableModalidade(String categoria) {
               ),
             ),
           ],
-          rows: categoria.compareTo("NORMAL") == 0
-              ? [
-                  _buildRowTableCredito(
-                    '1,00%',
-                    '01 a 04 meses',
-                  ),
-                  _buildRowTableCredito(
-                    '1,20%',
-                    '05 a 08 meses',
-                  ),
-                  _buildRowTableCredito(
-                    '1,30%',
-                    '09 a 12 meses',
-                  ),
-                  _buildRowTableCredito(
-                    '1,50%',
-                    '13 a 24 meses',
-                  ),
-                  _buildRowTableCredito(
-                    '1,80%',
-                    '25 a 36 meses',
-                  ),
-                ]
-              : [
-                  _buildRowTableCredito(
-                    '0,89%',
-                    'até 6 parcelas',
-                  ),
-                  _buildRowTableCredito(
-                    '0,99%',
-                    'de 7 a 18 parcelas',
-                  ),
-                  _buildRowTableCredito(
-                    '1,60%',
-                    'de 19 a 60 parcelas',
-                  ),
-                ],
+          rows: categoriasTaxasController.categoriasTaxas
+              .where(
+                  (cat) => cat.codigoCategoria.compareTo(categoriaCodigo) == 0)
+              .map((cat) => _buildRowTableCredito('${cat.taxa}%',
+                  '${cat.minParcela} a ${cat.maxParcela} meses'))
+              .toList(),
         ),
       ),
     ],
   );
 }
-
-/*class TableRegulamentoCredito extends StatelessWidget {
-  const TableRegulamentoCredito({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 10,
-      child: ExpansionTile(
-        title: Text(
-          "Escolha a Modalidade de Empréstimo",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(
-                  label: Text(
-                    "Taxa",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Container(
-                    padding: const EdgeInsets.only(left: 25),
-                    child: Text(
-                      "Prazo",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              rows: [
-                _buildRowTableCredito(
-                  '0,89%',
-                  'até 6 parcelas',
-                ),
-                _buildRowTableCredito(
-                  '0,99%',
-                  'de 7 a 12 parcelas',
-                ),
-                _buildRowTableCredito(
-                  '1,60%',
-                  'de 13 a 60 parcelas',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-*/
 
 DataRow _buildRowTableCredito(
   String taxa,
@@ -519,14 +434,31 @@ String _validateTextField(String value) {
   return null;
 }
 
-String _validateParcelas(String value, CategoriasModel categoria) {
+String _validateParcelas(
+  String value,
+  CategoriasTaxasController categoriasTaxasController,
+  CategoriasModel categoria,
+) {
+  List<CategoriasTaxasModel> categoriasTaxas = categoriasTaxasController
+      .categoriasTaxas
+      .where(
+          (element) => element.codigoCategoria.compareTo(categoria.codigo) == 0)
+      .toList();
+
+  int maxParcela = categoriasTaxas[0].maxParcela;
+
+  for (int i = 0; i < categoriasTaxas.length; i++) {
+    if (categoriasTaxas[i].maxParcela > maxParcela) {
+      maxParcela = categoriasTaxas[i].maxParcela;
+    }
+  }
+
   if (value.isEmpty) return '* Este campo é obrigatório. Informe um valor';
-  if (categoria.nome.compareTo("CAMPANHA") == 0 && int.parse(value) > 60) {
-    return 'O número máximo de parcelas permitido é 60';
+
+  if (int.parse(value) > maxParcela) {
+    return 'O número máximo de parcelas permitido é $maxParcela';
   }
-  if (categoria.nome.compareTo("NORMAL") == 0 && int.parse(value) > 36) {
-    return 'O número máximo de parcelas permitido é 36';
-  }
+
   return null;
 }
 

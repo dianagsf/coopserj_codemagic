@@ -4,6 +4,7 @@ export 'convenio_detalhes_controller.dart';
 export 'solicitacoes_post_controller.dart';
 export 'emprestimos_contratados_controller.dart';
 export 'categorias_controller.dart';
+export 'categorias_taxas_controller.dart';
 export 'solic_pendentes_controller.dart';
 export 'solicitacoes_controller.dart';
 export 'convenios_contratados_controller.dart';
