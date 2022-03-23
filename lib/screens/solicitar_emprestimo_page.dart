@@ -302,7 +302,28 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
 
                 child: ElevatedButton(
                   onPressed: () {
-                    if (formKey.currentState.validate()) {
+                    if (banco == null || categoria == null) {
+                      Get.dialog(
+                        AlertDialog(
+                          title: Text("Atenção!"),
+                          content: Text(
+                            "Você deve informar todos os campos para continuar.",
+                            style: TextStyle(fontSize: 18),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              child: Text(
+                                'OK',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    } else if (formKey.currentState.validate()) {
                       Get.to(
                         InfosSolicPage(
                           matricula: widget.matricula,

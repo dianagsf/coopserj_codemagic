@@ -34,9 +34,19 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
   MaskedTextController tokenController = MaskedTextController(mask: "00000000");
   MaskedTextController senhaController = MaskedTextController(mask: "000000");
 
+  MoneyMaskedTextController _controllerSalario =
+      MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: '.');
+  MaskedTextController _telController =
+      MaskedTextController(mask: "(00) 00000-0000");
+
+  TextEditingController _agenciaController = TextEditingController();
+  TextEditingController _contaController = TextEditingController();
+
   TextEditingController numParcelasController = TextEditingController();
 
   ControleAppController _controleAppController = Get.find();
+  BancosController bancosController = Get.find();
+  BancosModel banco;
 
   RefinanciamentoRepository refinanciamentoRepository =
       RefinanciamentoRepository();
@@ -276,6 +286,23 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
     final alturaTela =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
+    //Convert money type to double
+    String _convertDouble(String value) {
+      String valor = value.replaceAll(',', '.');
+      var valorDouble = [];
+      valorDouble = valor.split(".");
+      if (valorDouble != null) if (valorDouble.length == 2) {
+        return "${valorDouble[0]}" + "." + "${valorDouble[1]}";
+      } else {
+        return "${valorDouble[0]}" +
+            "${valorDouble[1]}" +
+            "." +
+            "${valorDouble[2]}";
+      }
+
+      return "${valorDouble[0]}";
+    }
+
     _launchURL(String url) async {
       if (await canLaunch(url)) {
         await launch(url);
@@ -368,6 +395,28 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
     }
 
     handleSolicitacao() {
+      if (banco == null) {
+        Get.dialog(
+          AlertDialog(
+            title: Text("Atenção!"),
+            content: Text(
+              "Você deve selecionar o banco.",
+              style: TextStyle(fontSize: 18),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: Text(
+                  'OK',
+                  style: TextStyle(fontSize: 18),
+                ),
+              )
+            ],
+          ),
+        );
+      }
       if (valorLiquido < 0) {
         Get.dialog(
           AlertDialog(
@@ -390,7 +439,9 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
             ],
           ),
         );
-      } else {
+      }
+
+      if (banco != null && valorLiquido > 0) {
         Get.dialog(
           AlertDialog(
             title: Text("Confirme sua senha"),
@@ -411,11 +462,16 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
                         "numero": protocolo,
                         "data": DateTime.now().toString().substring(0, 23),
                         "matricula": widget.matricula,
-                        "valor": valorFinanciado,
+                        "valor": valorFinanciado.toPrecision(2),
                         "np": numPrestacao,
-                        "iof": iof,
+                        "salario": _convertDouble(_controllerSalario.text),
+                        "iof": iof.toPrecision(2),
                         "prestacao": valorDesconto.toPrecision(2),
-                        "valorcr": valorLiquido,
+                        "valorcr": valorLiquido.toPrecision(2),
+                        "banco": "${banco.codigo} - ${banco.nome}",
+                        "agencia": int.parse(_agenciaController.text),
+                        "conta": int.parse(_contaController.text),
+                        "telefone": _telController.text,
                         "token": tokenController.text,
                         "datavencimento":
                             dataPrimeiraPrestacao.toString().substring(0, 23),
@@ -563,19 +619,119 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      "Informe o token de operação:",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Divider(),
+                      Text(
+                        "Informe os dados a seguir para completar a solicitação:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Form(
-                      key: formKey,
-                      child: TextFormField(
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        'Salário R\$',
+                        _controllerSalario,
+                        false,
+                        validateTextField: _validateSalario,
+                      ),
+                      const SizedBox(height: 30),
+                      Text(
+                        "Dados Bancários",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Obs.: Você deve ser o titular da conta para a solicitação ser realizada com sucesso.",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      GetX<BancosController>(
+                        builder: (_) {
+                          return _.bancos.length < 1
+                              ? Center(child: CircularProgressIndicator())
+                              : Column(
+                                  children: [
+                                    DropdownButton(
+                                      isExpanded: true,
+                                      value: banco,
+                                      hint: Text(
+                                        "Selecione o banco ...",
+                                      ),
+                                      items: _.bancos
+                                          .map(
+                                            (b) => DropdownMenuItem(
+                                              child: Text(
+                                                  "${b.codigo} - ${b.nome}"),
+                                              value: b,
+                                            ),
+                                          )
+                                          .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          banco = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        'Número da Agência',
+                        _agenciaController,
+                        true,
+                        validateTextField: _validateDados,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextField(
+                        'Número da Conta',
+                        _contaController,
+                        true,
+                        validateTextField: _validateConta,
+                      ),
+                      const SizedBox(height: 40),
+                      Text(
+                        "Informe um telefone para contato",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      TextFormField(
+                        validator: _validateDados,
+                        controller: _telController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            MdiIcons.phone,
+                            size: 20,
+                          ),
+                          hintText: "(00) 00000-0000",
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      Text(
+                        "Informe o token de operação:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
                         controller: tokenController,
                         validator: _validateToken,
                         keyboardType: TextInputType.number,
@@ -585,8 +741,8 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -629,6 +785,19 @@ class _InfoRefinanciamentoPageState extends State<InfoRefinanciamentoPage> {
   }
 }
 
+// TextField do formulário
+Widget _buildTextField(
+    String text, TextEditingController controller, bool notMoney,
+    {Function validateTextField}) {
+  return TextFormField(
+    validator: validateTextField,
+    controller: controller,
+    keyboardType: TextInputType.number,
+    decoration:
+        InputDecoration(prefixText: notMoney ? '' : 'R\$', labelText: text),
+  );
+}
+
 Widget _buildButton(
   String text,
   Color color,
@@ -667,6 +836,27 @@ Widget _buildButton(
       ),
     ),
   );
+}
+
+String _validateSalario(String value) {
+  if (value.compareTo("0,00") == 0) {
+    return '* Este campo é obrigatório. Informe um valor';
+  }
+  return null;
+}
+
+String _validateDados(String value) {
+  if (value.isEmpty) return '* Este campo é obrigatório. Informe os dados';
+
+  return null;
+}
+
+String _validateConta(String value) {
+  if (value.isEmpty) return '* Este campo é obrigatório. Informe os dados';
+
+  if (!value.isNumericOnly) return 'Digite apenas os números, sem o -';
+
+  return null;
 }
 
 String _validateToken(String value) {
