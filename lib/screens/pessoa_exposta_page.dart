@@ -7,11 +7,13 @@ import 'package:get/get.dart';
 class PessoaExpostaPage extends StatefulWidget {
   final int matricula;
   final String senha;
+  final bool solicPage;
 
   const PessoaExpostaPage({
     Key key,
     @required this.matricula,
     @required this.senha,
+    @required this.solicPage,
   }) : super(key: key);
   @override
   _PessoaExpostaPageState createState() => _PessoaExpostaPageState();
@@ -39,6 +41,17 @@ class _PessoaExpostaPageState extends State<PessoaExpostaPage> {
   Widget build(BuildContext context) {
     final alturaTela =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+
+    salvarFormularioSolicPage() {
+      pessoaExpostaPostRepository.saveInfo({
+        "codigo": protocolo,
+        "data": DateTime.now().toString().substring(0, 23),
+        "matricula": widget.matricula,
+        "situacao": selectedListTile == 1 ? 'S' : 'N'
+      });
+
+      Get.back();
+    }
 
     salvarFormulario() {
       Get.dialog(
@@ -98,21 +111,25 @@ class _PessoaExpostaPageState extends State<PessoaExpostaPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Pessoa exposta",
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 2,
-        iconTheme: IconThemeData(color: Colors.black),
-      ),
+      appBar: !widget.solicPage
+          ? AppBar(
+              title: Text(
+                "Pessoa exposta",
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              backgroundColor: Colors.white,
+              elevation: 2,
+              iconTheme: IconThemeData(color: Colors.black),
+            )
+          : null,
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          padding: !widget.solicPage
+              ? const EdgeInsets.symmetric(horizontal: 20, vertical: 30)
+              : EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             // mainAxisAlignment: MainAxisAlignment.center,
@@ -250,6 +267,8 @@ class _PessoaExpostaPageState extends State<PessoaExpostaPage> {
                 alturaTela,
                 context,
                 salvarFormulario,
+                salvarFormularioSolicPage,
+                widget.solicPage,
                 isPessoaExposta,
               ),
             ],
@@ -285,6 +304,8 @@ Widget _enviarButton(
   double alturaTela,
   BuildContext context,
   Function salvarFormulario,
+  Function salvarFormularioSolicPage,
+  bool solicPage,
   bool isPessoaExposta,
 ) {
   return Container(
@@ -294,7 +315,11 @@ Widget _enviarButton(
         : MediaQuery.of(context).size.width * 0.73,
 
     child: ElevatedButton(
-      onPressed: isPessoaExposta ? salvarFormulario : null,
+      onPressed: isPessoaExposta
+          ? solicPage
+              ? salvarFormularioSolicPage
+              : salvarFormulario
+          : null,
       style: ElevatedButton.styleFrom(
         primary: Theme.of(context).primaryColor,
         shape: RoundedRectangleBorder(

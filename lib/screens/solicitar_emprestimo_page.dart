@@ -152,25 +152,29 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
                               ? Center(child: CircularProgressIndicator())
                               : Column(
                                   children: [
-                                    DropdownButton(
-                                      isExpanded: true,
-                                      value: categoria,
-                                      hint: Text(
-                                        "Selecione a modalidade do empréstimo ...",
+                                    Listener(
+                                      onPointerDown: (_) =>
+                                          FocusScope.of(context).unfocus(),
+                                      child: DropdownButton(
+                                        isExpanded: true,
+                                        value: categoria,
+                                        hint: Text(
+                                          "Selecione a modalidade do empréstimo ...",
+                                        ),
+                                        items: _.categorias
+                                            .map(
+                                              (c) => DropdownMenuItem(
+                                                  child: Text(
+                                                      "${c.codigo}. ${c.nome}"),
+                                                  value: c),
+                                            )
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            categoria = value;
+                                          });
+                                        },
                                       ),
-                                      items: _.categorias
-                                          .map(
-                                            (c) => DropdownMenuItem(
-                                                child: Text(
-                                                    "${c.codigo}. ${c.nome}"),
-                                                value: c),
-                                          )
-                                          .toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          categoria = value;
-                                        });
-                                      },
                                     ),
                                     const SizedBox(height: 20),
                                     categoria != null
@@ -222,26 +226,30 @@ class _SolicitarEmprestimoPageState extends State<SolicitarEmprestimoPage> {
                               ? Center(child: CircularProgressIndicator())
                               : Column(
                                   children: [
-                                    DropdownButton(
-                                      isExpanded: true,
-                                      value: banco,
-                                      hint: Text(
-                                        "Selecione o banco ...",
+                                    Listener(
+                                      onPointerDown: (_) =>
+                                          FocusScope.of(context).unfocus(),
+                                      child: DropdownButton(
+                                        isExpanded: true,
+                                        value: banco,
+                                        hint: Text(
+                                          "Selecione o banco ...",
+                                        ),
+                                        items: _.bancos
+                                            .map(
+                                              (b) => DropdownMenuItem(
+                                                child: Text(
+                                                    "${b.codigo} - ${b.nome}"),
+                                                value: b,
+                                              ),
+                                            )
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            banco = value;
+                                          });
+                                        },
                                       ),
-                                      items: _.bancos
-                                          .map(
-                                            (b) => DropdownMenuItem(
-                                              child: Text(
-                                                  "${b.codigo} - ${b.nome}"),
-                                              value: b,
-                                            ),
-                                          )
-                                          .toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          banco = value;
-                                        });
-                                      },
                                     ),
                                   ],
                                 );

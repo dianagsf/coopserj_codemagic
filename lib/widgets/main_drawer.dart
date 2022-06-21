@@ -193,7 +193,12 @@ class MainDrawer extends StatelessWidget {
                 Icons.face,
                 'PESSOA EXPOSTA',
                 () => Get.to(
-                    PessoaExpostaPage(matricula: matricula, senha: senha)),
+                  PessoaExpostaPage(
+                    matricula: matricula,
+                    senha: senha,
+                    solicPage: false,
+                  ),
+                ),
               ),
               Divider(),
               _createItem(

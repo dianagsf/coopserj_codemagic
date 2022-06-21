@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:coopserj_app/controllers/controllers.dart';
 import 'package:coopserj_app/models/models.dart';
+import 'package:coopserj_app/screens/screens.dart';
 import 'package:coopserj_app/utils/format_money.dart';
 import 'package:coopserj_app/utils/responsive.dart';
 import 'package:coopserj_app/widgets/widgets.dart';
@@ -103,7 +104,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
       saldo = valorFinanciado;
     }
 
-    for (int i = 0; i < np; i++) {
+    for (int i = 1; i <= np; i++) {
       diasIOF = dataVencimento.difference(dataCredito).inDays;
 
       if (diasIOF >= 365) diasIOF = 365;
@@ -112,7 +113,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               rate: taxa / 100, per: i, nper: np, pv: valorFinanciado) *
           -1;
 
-      xiof = valorAmortizacao * fatorIOF * diasIOF;
+      xiof = (valorAmortizacao * fatorIOF * diasIOF).toPrecision(2);
 
       iofAdicional = iofAdicional + xiof;
 
@@ -123,7 +124,7 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
           DateTime(dataVencimento.year, dataVencimento.month + 1, ultimoDia);
     }
 
-    return iofAdicional.toPrecision(2);
+    return iofAdicional;
   }
 
   calculaValores() {
@@ -530,9 +531,24 @@ class _InfosSolicPageState extends State<InfosSolicPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildButton("CANCELAR", Colors.red, handleCancel, formKey),
-                  _buildButton("SOLICITAR", Colors.green[300],
-                      handleSolicitacao, formKey),
+                  _buildButton(
+                    "CANCELAR",
+                    Colors.red,
+                    handleCancel,
+                    formKey,
+                    widget.matricula,
+                    widget.senha,
+                    context,
+                  ),
+                  _buildButton(
+                    "SOLICITAR",
+                    Colors.green[300],
+                    handleSolicitacao,
+                    formKey,
+                    widget.matricula,
+                    widget.senha,
+                    context,
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -549,6 +565,9 @@ Widget _buildButton(
   Color color,
   Function function,
   GlobalKey<FormState> formKey,
+  int matricula,
+  String senha,
+  BuildContext context,
 ) {
   return Container(
     // padding: EdgeInsets.only(top: 100.0),
@@ -558,7 +577,26 @@ Widget _buildButton(
       child: ElevatedButton(
         onPressed: () {
           if (text.compareTo("SOLICITAR") == 0) {
-            if (formKey.currentState.validate()) function();
+            if (formKey.currentState.validate()) {
+              function();
+              Get.dialog(
+                WillPopScope(
+                  onWillPop: () async => false,
+                  child: AlertDialog(
+                    title: Text("TERMO DE PESSOA POLITICAMENTE EXPOSTA"),
+                    content: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: PessoaExpostaPage(
+                        matricula: matricula,
+                        senha: senha,
+                        solicPage: true,
+                      ),
+                    ),
+                  ),
+                ),
+                barrierDismissible: false,
+              );
+            }
           } else {
             function();
           }
